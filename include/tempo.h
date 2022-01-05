@@ -30,6 +30,7 @@ namespace Tempo {
         uint16_t default_window_height = 0;
         uint16_t default_window_width = 0;
         bool force_default_window_size = false;
+        bool no_console = false;
 
         // ImGui configs flags
         int imgui_config_flags = ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable;
@@ -37,6 +38,9 @@ namespace Tempo {
         // GLFW poll or wait
         enum GLFW_events { POLL, WAIT };
         GLFW_events poll_or_wait = WAIT;
+
+        // Multi viewports focus behavior (see SetMultiViewportsFocusBehavior for explanation)
+        bool viewports_focus_all = true;
 
         // DPI
         bool DPI_aware = true;
@@ -61,14 +65,39 @@ namespace Tempo {
         App();
         virtual ~App() {}
 
-        // Update tick
+        /**
+         * @brief This is where you want to put all the ImGui calls to draw the UI
+         * This function is called each loop continuisly
+         */
         virtual void FrameUpdate() {}
+        /**
+         * @brief Sometimes, some
+         *
+         */
         virtual void BeforeFrameUpdate() {}
 
         // Returns the main GLFW window
         GLFWwindow* GetWindow() { return m_main_window; }
 
         friend int Run(App* application, Config config);
+    };
+
+    /**
+     * @brief Set the Multi Viewports Focus Behavior
+     *
+     * @param focus_all if true, if the user clicks on any window of the app,
+     * then all window are focused. This can be used when one wants that the
+     * whole program is shown when another program hides one or more windows.
+     */
+    void SetMultiViewportsFocusBehavior(bool focus_all);
+
+    /**
+     * @brief This class manages the fonts such that they are DPI / scaling aware
+     */
+    class Fonts {
+    private:
+    public:
+
     };
 
     int Run(App* application, Config config);

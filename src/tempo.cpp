@@ -18,6 +18,16 @@ namespace Tempo {
         const char* glsl_version;
     };
 
+    struct AppData {
+        // Fonts
+        float scaling = 1.0f;
+        float font_size = 15.0f;
+    };
+
+    void SetMultiViewportsFocusBehavior(bool focus_all) {
+        GLFWwindowHandler::focus_all = focus_all;
+    }
+
     int Run(App* application, Config config) {
         AppState app_state;
 
@@ -90,6 +100,10 @@ namespace Tempo {
             style.WindowRounding = 0.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
+
+        /* ==== Other configs  ==== */
+        GLFWwindowHandler::addWindow(main_window);
+        GLFWwindowHandler::focus_all = config.viewports_focus_all;
 
 
         /* ==== Events & stuff  ==== */

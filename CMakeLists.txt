@@ -14,6 +14,9 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+# Project options
+option(WITHOUT_CONSOLE "Does not show the console when the program is opened" ON)
+
 
 # External librairies
 add_subdirectory("external/glad")
@@ -22,14 +25,18 @@ add_subdirectory("external/imgui")
 add_subdirectory("external/nativefiledialog-extended")
 add_subdirectory("external/stb_image")
 
+# For GLFWwindowHandler
+include_directories(src/glfw_handler)
 
 # Files for the project
 set(src_files
-    "external/imgui_bindings/imgui_impl_glfw.h"
-    "external/imgui_bindings/imgui_impl_glfw.cpp"
     "external/imgui_bindings/imgui_impl_opengl3.h"
     "external/imgui_bindings/imgui_impl_opengl3.cpp"
     "include/tempo.h"
+    "src/glfw_handler/glfw_window_handler.h"
+    "src/glfw_handler/glfw_window_handler.cpp"
+    "external/imgui_bindings/imgui_impl_glfw.h"
+    "external/imgui_bindings/imgui_impl_glfw.cpp"
     "src/tempo.cpp"
     "src/events.h"
     "src/events.cpp"
@@ -40,6 +47,14 @@ set(src_files
 )
 
 add_library(Tempo STATIC ${src_files})
+
+if (WITHOUT_CONSOLE EQUAL ON)
+    if (MSVC)
+    set_target_properties(Tempo PROPERTIES 
+        LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
+    endif()
+endif()
+
 target_link_libraries(Tempo PRIVATE glad glfw Imgui nfd stb_image)
 
 # Includes
@@ -47,6 +62,8 @@ target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glad/include")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glfw/include")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui")
+# For GLFWwindowHandler
+target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/glfw_handler")
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/external/imgui_bindings")
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/external/nativefiledialog-extended/src/include")
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/external/stb_image")
