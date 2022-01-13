@@ -2,6 +2,7 @@
 #include "internal.h"
 
 #include <iostream>
+#include <iterator>
 
 namespace Tempo {
 
@@ -14,9 +15,12 @@ namespace Tempo {
 
     struct AppState {
         bool error = false;
+        bool loop_running = false;
+        bool app_initialized = false;
         std::string error_msg = "";
         const char* glsl_version;
     };
+    AppState app_state;
 
     struct AppData {
         // Fonts
@@ -101,16 +105,21 @@ namespace Tempo {
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
 
-        /* ==== Other configs  ==== */
-        GLFWwindowHandler::addWindow(main_window);
-        GLFWwindowHandler::focus_all = config.viewports_focus_all;
-
-
         /* ==== Events & stuff  ==== */
         JobScheduler& scheduler = JobScheduler::getInstance();
         EventQueue& event_queue = EventQueue::getInstance();
 
+        /* ==== Other configs  ==== */
+        GLFWwindowHandler::addWindow(main_window, 0, true);
+        GLFWwindowHandler::focus_all = config.viewports_focus_all;
+        GLFWwindowHandler::application = application;
+
+        app_state.app_initialized = true;
         application->m_glfw_poll_or_wait = config.poll_or_wait;
+
+        application->InitializationBeforeLoop();
+
+        app_state.loop_running = true;
 
         /* ==== Main loop  ==== */
         do {
@@ -126,33 +135,39 @@ namespace Tempo {
 
             application->BeforeFrameUpdate();
 
-            // Start the Dear ImGui frame
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-
-            application->FrameUpdate();
-
-            // Rendering
-            ImGui::Render();
-
-            int display_w, display_h;
-            glfwGetFramebufferSize(main_window, &display_w, &display_h);
-            glViewport(0, 0, display_w, display_h);
-            glClearColor(0.5, 0.5, 0.5, 0);
-            glClear(GL_COLOR_BUFFER_BIT);
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-                GLFWwindow* backup_current_context = glfwGetCurrentContext();
-                ImGui::UpdatePlatformWindows();
-                ImGui::RenderPlatformWindowsDefault();
-                glfwMakeContextCurrent(backup_current_context);
+            // TODO: multi-scale system
+            float xscale, yscale;
+            bool change_fonts = false;
+            GLFWmonitor* monitor = getCurrentMonitor(main_window);
+            glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+            for (auto font_pair : s_fonts.font_atlas) {
+                if (xscale != font_pair.second.scaling) {
+                    change_fonts = true;
+                    break;
+                }
+            }
+            if (change_fonts) {
+                std::cout << "Change scaling" << std::endl;
+                io.Fonts->Clear();
+                for (auto& font_pair : s_fonts.font_atlas) {
+                    Font& font = font_pair.second;
+                    if (xscale != font.scaling) {
+                        ImFont* imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), xscale * font.size_pixels, font.font_cfg, font.glyph_ranges);
+                        font.scaling = xscale;
+                        font.imfont = imfont;
+                    }
+                }
+                ImGui_ImplOpenGL3_DestroyFontsTexture();
+                ImGui_ImplOpenGL3_CreateFontsTexture();
+                io.Fonts->Build();
             }
 
-            JobScheduler::getInstance().finalizeJobs();
 
-            glfwSwapBuffers(main_window);
+            int width, height;
+            glfwGetFramebufferSize(main_window, &width, &height);
+            renderApplication(main_window, width, height, application);
+
+            JobScheduler::getInstance().finalizeJobs();
 
             if (glfwWindowShouldClose(main_window)) {
                 scheduler.abortAll();
@@ -160,6 +175,8 @@ namespace Tempo {
 
         } while (!glfwWindowShouldClose(main_window) || scheduler.isBusy());
 
+        app_state.loop_running = false;
+        app_state.app_initialized = false;
         // Shut down ImGui and ImPlot
         ImGui_ImplOpenGL3_DestroyFontsTexture();
         ImGui_ImplGlfw_Shutdown();

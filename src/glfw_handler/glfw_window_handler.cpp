@@ -3,11 +3,13 @@
 #include <iostream>
 
 #include "../events.h"
+#include "../utils.h"
 
 namespace Tempo {
     std::multimap<int, GLFWwindow*> GLFWwindowHandler::windows;
     bool GLFWwindowHandler::focus_all = false;
     bool GLFWwindowHandler::all_windows_unfocused = false;
+    App* GLFWwindowHandler::application = nullptr;
 
     void GLFWwindowHandler::focus_callback(GLFWwindow*, int focused) {
         // If previously all windows were unfocused and
@@ -34,11 +36,12 @@ namespace Tempo {
         }
     }
 
-    void GLFWwindowHandler::addWindow(GLFWwindow* window, int z_index) {
+    void GLFWwindowHandler::addWindow(GLFWwindow* window, int z_index, bool resize_callback) {
         windows.insert(std::pair<int, GLFWwindow*>(z_index, window));
         glfwSetWindowFocusCallback(window, &GLFWwindowHandler::focus_callback);
         // glfwSetKeyCallback(window, &KeyboardShortCut::key_callback);
-        glfwSetFramebufferSizeCallback(window, &GLFWwindowHandler::framebuffer_size_callback);
+        if (resize_callback)
+            glfwSetFramebufferSizeCallback(window, &GLFWwindowHandler::framebuffer_size_callback);
         //glfwSetCharCallback(window, &KeyboardShortCut::character_callback);
     }
 
@@ -56,9 +59,10 @@ namespace Tempo {
         addWindow(window, z_index);
     }
 
-    void GLFWwindowHandler::framebuffer_size_callback(GLFWwindow*, int, int) {
+    void GLFWwindowHandler::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
         // glViewport(0, 0, width, height);
-        EventQueue::getInstance().post(Event_ptr(new Event("Tempo/redraw")));
+        // EventQueue::getInstance().post(Event_ptr(new Event("Tempo/redraw")));
         // TODO Multi-threaded app: https://stackoverflow.com/a/56614042/8523520
+        renderApplication(window, width, height, application);
     }
 }

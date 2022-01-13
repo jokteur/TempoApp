@@ -1,7 +1,8 @@
 #pragma once
 
 #include <map>
-#include <GLFW/glfw3.h>
+
+#include "tempo.h"
 
 namespace Tempo {
     /**
@@ -19,6 +20,7 @@ namespace Tempo {
          * If focus_all is set to true, then
          */
         static bool focus_all;
+        static App* application;
 
         /**
          * Callback for GLFW when resizing the window
@@ -55,7 +57,7 @@ namespace Tempo {
          * @param window glfw window pointer
          * @param z_index z index (low to back, high to front)
          */
-        static void addWindow(GLFWwindow* window, int z_index = 0);
+        static void addWindow(GLFWwindow* window, int z_index = 0, bool resize_callback = false);
 
         /**
          * Removes a GLFW window from the class

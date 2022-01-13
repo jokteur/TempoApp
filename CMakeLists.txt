@@ -33,10 +33,12 @@ set(src_files
     "external/imgui_bindings/imgui_impl_opengl3.h"
     "external/imgui_bindings/imgui_impl_opengl3.cpp"
     "include/tempo.h"
-    "src/glfw_handler/glfw_window_handler.h"
-    "src/glfw_handler/glfw_window_handler.cpp"
     "external/imgui_bindings/imgui_impl_glfw.h"
     "external/imgui_bindings/imgui_impl_glfw.cpp"
+    "src/utils.h"
+    "src/utils.cpp"
+    "src/glfw_handler/glfw_window_handler.h"
+    "src/glfw_handler/glfw_window_handler.cpp"
     "src/tempo.cpp"
     "src/events.h"
     "src/events.cpp"
@@ -61,7 +63,7 @@ target_link_libraries(Tempo PRIVATE glad glfw Imgui nfd stb_image)
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glad/include")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glfw/include")
-target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui")
+target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/imgui")
 # For GLFWwindowHandler
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/glfw_handler")
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/external/imgui_bindings")
