@@ -13,15 +13,6 @@ public:
         }
 
         ImGui::End();
-
-        ImGui::Begin("2nd window");
-
-        if (ImGui::CollapsingHeader("Header")) {
-            ImGui::Text("Hello");
-            // ImGui::End();
-        }
-
-        ImGui::End();
     }
     void BeforeFrameUpdate() override {}
 };
@@ -29,11 +20,8 @@ public:
 int main() {
     Tempo::Config config{
         .app_name = "TestApp",
-        .app_title = "My title",
-        .poll_or_wait = Tempo::Config::POLL
+        .app_title = "Hello world",
     };
-
-    // Tempo::SetMultiViewportsFocusBehavior(true);
 
     MainApp* app = new MainApp();
     Tempo::Run(app, config);

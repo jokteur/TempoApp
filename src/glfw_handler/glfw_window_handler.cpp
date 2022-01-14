@@ -60,8 +60,6 @@ namespace Tempo {
     }
 
     void GLFWwindowHandler::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-        // glViewport(0, 0, width, height);
-        // EventQueue::getInstance().post(Event_ptr(new Event("Tempo/redraw")));
         // TODO Multi-threaded app: https://stackoverflow.com/a/56614042/8523520
         renderApplication(window, width, height, application);
     }

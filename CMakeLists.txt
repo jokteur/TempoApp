@@ -15,7 +15,7 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 # Project options
-option(WITHOUT_CONSOLE "Does not show the console when the program is opened" ON)
+option(WITHOUT_CONSOLE "Does not show the console when the program is opened" OFF)
 
 
 # External librairies
@@ -50,7 +50,7 @@ set(src_files
 
 add_library(Tempo STATIC ${src_files})
 
-if (WITHOUT_CONSOLE EQUAL ON)
+if (WITHOUT_CONSOLE)
     if (MSVC)
     set_target_properties(Tempo PROPERTIES 
         LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
@@ -86,4 +86,5 @@ get_directory_property(is_subproject PARENT_DIRECTORY)
 # Only build the test suite and utilities if this is not a subproject
 if(NOT is_subproject)
 	add_subdirectory("examples/minimal")
+    add_subdirectory("examples/feature")
 endif()

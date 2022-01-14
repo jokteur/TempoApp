@@ -19,6 +19,10 @@ namespace Tempo {
         bool app_initialized = false;
         std::string error_msg = "";
         const char* glsl_version;
+
+        // Monitors can be added, substracted, change their scaling
+        // This is why we need to keep track if there is any change
+        ImVector<float> monitors_scales;
     };
     AppState app_state;
 
@@ -32,9 +36,77 @@ namespace Tempo {
         GLFWwindowHandler::focus_all = focus_all;
     }
 
-    int Run(App* application, Config config) {
-        AppState app_state;
+    struct FontInfo {
+        std::map<float, ImFont*> multi_scale_font;
+        float scaling = 0;
+        // Font parameters for ImGui
+        std::string filename;
+        float size_pixels;
+        const ImFontConfig* font_cfg;
+        const ImWchar* glyph_ranges;
+    };
 
+    struct Fonts {
+        int push_pop_counter = 0;
+        int font_counter = 0;
+        std::map<uint32_t, FontInfo> font_atlas;
+    };
+
+    Fonts s_fonts;
+
+    std::optional<FontID> AddFontFromFileTTF(const std::string& filename, float size_pixels, const ImFontConfig* font_cfg, const ImWchar* glyph_ranges) {
+        assert(app_state.app_initialized && "AddFontFromFileTTF cannot be called when the application has not been initialized yet.");
+        FontInfo font;
+        font.filename = filename;
+        font.size_pixels = size_pixels;
+        font.font_cfg = font_cfg;
+        font.glyph_ranges = glyph_ranges;
+
+        s_fonts.font_counter++;
+
+        // TODO: check if file exists and can be loaded
+        auto& io = ImGui::GetIO();
+        io.Fonts->AddFontFromFileTTF(filename.c_str(), size_pixels, font_cfg, glyph_ranges);
+
+        FontID font_id = (FontID)s_fonts.font_counter;
+        s_fonts.font_atlas.insert(std::make_pair(font_id, font));
+
+        return std::optional<FontID>(font_id);
+    }
+
+    void RemoveFont(FontID font_id) {
+        if (s_fonts.font_atlas.find(font_id) != s_fonts.font_atlas.end()) {
+            s_fonts.font_atlas.erase(font_id);
+        }
+    }
+
+    void PushFont(FontID font_id) {
+        assert(app_state.loop_running && "PushFont cannot be called outside of the main loop of the application");
+        if (s_fonts.font_atlas.find(font_id) == s_fonts.font_atlas.end()) {
+            ImGui::PushFont(nullptr);
+            return;
+        }
+        s_fonts.push_pop_counter++;
+        // FIXME : multiple DPI support
+        FontInfo font_info = s_fonts.font_atlas[font_id];
+        ImFont* font = (*(font_info.multi_scale_font.begin())).second;
+        ImGui::PushFont(font);
+    }
+
+    void PopFont() {
+        assert(app_state.loop_running && "PushFont cannot be called outside of the main loop of the application");
+        ImGui::PopFont();
+        s_fonts.push_pop_counter--;
+    }
+
+    void Begin(const char* name, bool* p_open, ImGuiWindowFlags flags) {
+        ImGui::Begin(name, p_open, flags);
+    }
+    void End() {
+        ImGui::End();
+    }
+
+    int Run(App* application, Config config) {
         /* ==== Initialize glfw  ==== */
         glfwSetErrorCallback(glfw_error_callback);
         if (!glfwInit()) {
@@ -121,6 +193,7 @@ namespace Tempo {
 
         app_state.loop_running = true;
 
+        float previous_scale = 0;
         /* ==== Main loop  ==== */
         do {
             io = ImGui::GetIO();
@@ -135,32 +208,59 @@ namespace Tempo {
 
             application->BeforeFrameUpdate();
 
-            // TODO: multi-scale system
-            float xscale, yscale;
+
             bool change_fonts = false;
-            GLFWmonitor* monitor = getCurrentMonitor(main_window);
-            glfwGetMonitorContentScale(monitor, &xscale, &yscale);
-            for (auto font_pair : s_fonts.font_atlas) {
-                if (xscale != font_pair.second.scaling) {
-                    change_fonts = true;
-                    break;
-                }
+
+
+            // FIXME: multi-DPI system
+            // right now, we are use the main window content scale
+            // the code below is a WIP for multi-DPI
+
+            // Look for the scaling on each monitor
+            // and change fonts if there is some change
+            // int monitors_count = 0;
+            // GLFWmonitor** glfw_monitors = glfwGetMonitors(&monitors_count);
+            // if (app_state.monitors_scales.size() != monitors_count)
+            //     change_fonts = true;
+
+            // app_state.monitors_scales.resize(monitors_count);
+            // for (int n = 0;n < monitors_count; n++) {
+            //     float x_scale, y_scale;
+            //     glfwGetMonitorContentScale(glfw_monitors[n], &x_scale, &y_scale);
+            //     if (app_state.monitors_scales[n] != x_scale) {
+            //         change_fonts = true;
+            //     }
+            //     app_state.monitors_scales[n] = x_scale;
+            // }
+
+            float xscale, yscale;
+            glfwGetWindowContentScale(main_window, &xscale, &yscale);
+            if (xscale != previous_scale) {
+                change_fonts = true;
+                previous_scale = xscale;
             }
+
             if (change_fonts) {
-                std::cout << "Change scaling" << std::endl;
                 io.Fonts->Clear();
+                // For each font, we need one FontTexture per scale
                 for (auto& font_pair : s_fonts.font_atlas) {
-                    Font& font = font_pair.second;
-                    if (xscale != font.scaling) {
-                        ImFont* imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), xscale * font.size_pixels, font.font_cfg, font.glyph_ranges);
-                        font.scaling = xscale;
-                        font.imfont = imfont;
-                    }
+                    FontInfo& font = font_pair.second;
+                    font.multi_scale_font.clear();
+                    ImFont* imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), xscale * font.size_pixels, font.font_cfg, font.glyph_ranges);
+                    font.multi_scale_font[xscale] = imfont;
+
+                    // For multi-DPI
+                    // for (auto& scale : app_state.monitors_scales) {
+                    //     ImFont* imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), scale * font.size_pixels, font.font_cfg, font.glyph_ranges);
+                    //     font.multi_scale_font[scale] = imfont;
+                    // }
                 }
+                io.Fonts->Build();
                 ImGui_ImplOpenGL3_DestroyFontsTexture();
                 ImGui_ImplOpenGL3_CreateFontsTexture();
-                io.Fonts->Build();
             }
+
+            // ImGuiPlatformIO& platorm_io = ImGui::GetPlatformIO();
 
 
             int width, height;

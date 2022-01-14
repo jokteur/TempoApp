@@ -68,6 +68,13 @@ namespace Tempo {
         virtual ~App() {}
 
         /**
+         * @brief Implement this function if you want to call some flags
+         * before the loop of the application is launched, but after ImGui
+         * has been initialized
+         */
+        virtual void InitializationBeforeLoop() {}
+
+        /**
          * @brief This is where you want to put all the ImGui calls to draw the UI
          * This function is called each loop continuisly
          */
@@ -93,14 +100,106 @@ namespace Tempo {
      */
     void SetMultiViewportsFocusBehavior(bool focus_all);
 
-    /**
-     * @brief This class manages the fonts such that they are DPI / scaling aware
-     */
-    class Fonts {
-    private:
-    public:
+    typedef int FontID;
 
-    };
+    /**
+     * @brief Adds a font (from file) that knows the DPI of the current viewport
+     *
+     * Using these fonts is similar to the ImGUI ImGui::PushFont and ImGui::PopFont,
+     * instead, one must use the equivalent Tempo::PushFont and Tempo::PopFont
+     *
+     * By default, the last call to this function will be the default font file
+     * in the whole app.
+     *
+     * Must be called after the application has been initialized
+     * It is recommended to use the function inside the MainApp::Initialization()
+     * or MainApp::BeforeFrameUpdate()
+     *
+     * @param filename path to the TTF font
+     * @param size_pixels relative pixel size of the font
+     * @param font_cfg ImGUI font configuration flags
+     * @param glyph_ranges ImGUI font ranges for glyphs
+     * @return std::optional<FontID> returns a FontID if it succeeded
+     */
+    std::optional<FontID> AddFontFromFileTTF(const std::string& filename, float size_pixels, const ImFontConfig* font_cfg = (const ImFontConfig*)0, const ImWchar* glyph_ranges = (const ImWchar*)0);
+
+    /**
+     * @brief Adds a font (from memory) that know the DPI of the current viewport
+     *
+     * Using these fonts is similar to the ImGUI ImGui::PushFont and ImGui::PopFont,
+     * instead, one must use the equivalent PushDPIAwareFont and PopDPIAwareFont
+     *
+     * @param font_data array contained the TTF data
+     * @param font_size size of the data array
+     * @param size_pixels relative pixel size of the font
+     * @param font_cfg ImGUI font configuration flags
+     * @param glyph_ranges ImGUI font ranges for glyphs
+     * @return std::optional<FontID> returns a FontID if it succeeded
+     */
+     // std::optional<FontID> AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = (const ImFontConfig*)0, const ImWchar* glyph_ranges = (const ImWchar*)0);
+
+     /**
+      * @brief Adds a font (from memory, compressed TTF) that know the DPI of the current viewport
+      *
+      * Using these fonts is similar to the ImGUI ImGui::PushFont and ImGui::PopFont,
+      * instead, one must use the equivalent PushDPIAwareFont and PopDPIAwareFont
+      *
+      * @param compressed_font_data array contained the TTF data
+      * @param compressed_font_size size of the data array
+      * @param size_pixels relative pixel size of the font
+      * @param font_cfg ImGUI font configuration flags
+      * @param glyph_ranges ImGUI font ranges for glyphs
+      * @return std::optional<FontID> returns a FontID if it succeeded
+      */
+      // std::optional<FontID> AddFontFromCompressedMemoryTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels, const ImFontConfig* font_cfg = (const ImFontConfig*)0, const ImWchar* glyph_ranges = (const ImWchar*)0);
+
+      /**
+       * @brief Removes a DPI aware font from the atlas
+       * If the FontID is not registered, this function does nothing
+       *
+       * @param font_id ID of the font, which should have been given by the AddDPIAwareFont* functions
+       */
+    void RemoveFont(FontID font_id);
+
+    /**
+     * @brief Pushes the DPI aware font to the front of the atlas
+     *
+     * If the FontID is not registered, it pushes the default ImGUI font
+     * (and will not be DPI aware)
+     *
+     * This function should be used inside the main loop
+     *
+     * @param font_id
+     */
+    void PushFont(FontID font_id);
+
+    /**
+     * @brief Pops the last DPI aware pushed to the front of the atlas
+     *
+     * If no fonts are left to pop and this function is called, then
+     * an assert is called
+     *
+     * This function should be used inside the main loop
+     *
+     */
+    void PopFont();
+
+    /**
+     * @brief Replacement for ImGui::Begin to have multi-dpi awareness
+     *
+     * To be used with Tempo::End
+     *
+     * @param name
+     * @param p_open
+     * @param flags
+     */
+    void Begin(const char* name, bool* p_open = (bool*)0, ImGuiWindowFlags flags = 0);
+
+    /**
+     * @brief End of Tempo::Begin
+     *
+     */
+    void End();
 
     int Run(App* application, Config config);
 }
