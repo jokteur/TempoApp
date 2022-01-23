@@ -15,6 +15,8 @@ set(
 	"imgui/imgui.h"
 	"imgui/imgui_demo.cpp"
 	"imgui/imgui_draw.cpp"
+	"imgui/misc/cpp/imgui_stdlib.h"
+	"imgui/misc/cpp/imgui_stdlib.cpp"
 	"imgui/imgui_internal.h"
     "imgui/imgui_tables.cpp"
 	"imgui/imgui_widgets.cpp"
