@@ -29,7 +29,7 @@ public:
         ImGui::Begin("My window", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
 
         if (ImGui::Button("Click me")) {
-            std::cout << "Hello world" << std::endl;
+            Tempo::EventQueue::getInstance().post(Tempo::Event_ptr(new Tempo::Event("Tempo/redraw")));
         }
         ImGui::Text("Welcome to the multi-font application");
         Tempo::PushFont(m_font_bold);

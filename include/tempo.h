@@ -14,6 +14,9 @@
 #include <cstdint>
 #include <iostream>
 
+#include "../src/jobscheduler.h"
+#include "../src/events.h"
+
 //compatibility with older versions of Visual Studio
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")

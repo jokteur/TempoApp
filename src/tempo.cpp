@@ -23,6 +23,9 @@ namespace Tempo {
         // Monitors can be added, substracted, change their scaling
         // This is why we need to keep track if there is any change
         ImVector<float> monitors_scales;
+
+        // Relative to rendering
+        bool redraw = false;
     };
     AppState app_state;
 
@@ -177,9 +180,24 @@ namespace Tempo {
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
 
+
         /* ==== Events & stuff  ==== */
         JobScheduler& scheduler = JobScheduler::getInstance();
         EventQueue& event_queue = EventQueue::getInstance();
+
+        Listener tempo_listener;
+        tempo_listener.filter = "Tempo/*";
+        tempo_listener.callback = [=](Event_ptr event) {
+            std::string name = event->getName();
+            auto pos = name.find_first_of("/");
+            if (pos + 1 < name.size()) {
+                std::string type = name.substr(pos + 1);
+                if (type == "redraw") {
+                    app_state.redraw = true;
+                }
+            }
+        };
+        event_queue.subscribe(&tempo_listener);
 
         /* ==== Other configs  ==== */
         GLFWwindowHandler::addWindow(main_window, 0, true);
@@ -207,7 +225,6 @@ namespace Tempo {
             event_queue.pollEvents();
 
             application->BeforeFrameUpdate();
-
 
             bool change_fonts = false;
 
@@ -266,6 +283,10 @@ namespace Tempo {
             int width, height;
             glfwGetFramebufferSize(main_window, &width, &height);
             renderApplication(main_window, width, height, application);
+            if (app_state.redraw) {
+                app_state.redraw = false;
+                glfwPostEmptyEvent();
+            }
 
             JobScheduler::getInstance().finalizeJobs();
 
@@ -277,6 +298,8 @@ namespace Tempo {
 
         app_state.loop_running = false;
         app_state.app_initialized = false;
+
+        event_queue.unsubscribe(&tempo_listener);
         // Shut down ImGui and ImPlot
         ImGui_ImplOpenGL3_DestroyFontsTexture();
         ImGui_ImplGlfw_Shutdown();
