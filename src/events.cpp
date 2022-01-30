@@ -118,7 +118,7 @@ namespace Tempo {
     bool EventQueue::isListener(const std::string& filter, const std::string& event_name) {
         bool filter_ok = true;
 
-        int i = 0;
+        size_t i = 0;
         for (; i < filter.size() && i < event_name.size(); i++) {
             if (filter[i] == '*') {
                 break;

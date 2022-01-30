@@ -12,21 +12,21 @@ namespace Tempo {
      */
     class LogEvent : public Event {
     private:
-        std::string message_;
+        std::string m_message;
 
     public:
-        explicit LogEvent(const std::string& name, std::string message) : message_(std::move(message)), Event(std::string("log/") + name) {}
+        explicit LogEvent(const std::string& name, std::string message) : Event(std::string("log/") + name), m_message(std::move(message)) {}
 
-        std::string& getMessage() { return message_; }
+        std::string& getMessage() { return m_message; }
     };
 #define LOGEVENT_PTRCAST(job) (reinterpret_cast<LogEvent*>((job)))
 
     class DebugLogger {
     private:
-        std::vector<std::string> logs_;
-        std::string out_file_;
-        bool print_std_;
-        Listener event_listener_;
+        std::vector<std::string> m_logs;
+        std::string m_out_file;
+        bool m_print_std;
+        Listener m_event_listener;
 
     public:
         DebugLogger(const std::string& out, bool print_std = false);

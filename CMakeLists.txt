@@ -30,21 +30,14 @@ include_directories(src/glfw_handler)
 
 # Files for the project
 set(src_files
-    "external/imgui_bindings/imgui_impl_opengl3.h"
     "external/imgui_bindings/imgui_impl_opengl3.cpp"
     "include/tempo.h"
-    "external/imgui_bindings/imgui_impl_glfw.h"
     "external/imgui_bindings/imgui_impl_glfw.cpp"
-    "src/utils.h"
     "src/utils.cpp"
-    "src/glfw_handler/glfw_window_handler.h"
     "src/glfw_handler/glfw_window_handler.cpp"
     "src/tempo.cpp"
-    "src/events.h"
     "src/events.cpp"
-    "src/log.h"
     "src/log.cpp"
-    "src/jobscheduler.h"
     "src/jobscheduler.cpp"
 )
 
@@ -57,7 +50,7 @@ if (WITHOUT_CONSOLE)
     endif()
 endif()
 
-target_link_libraries(Tempo PRIVATE glad glfw Imgui nfd stb_image)
+target_link_libraries(Tempo PRIVATE glad glfw Imgui imm32 nfd stb_image)
 
 # Includes
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/include")
