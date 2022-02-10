@@ -36,6 +36,7 @@ namespace Tempo {
         uint16_t default_window_width = 0;
         bool force_default_window_size = false;
         bool no_console = false;
+        bool maximized = false;
 
         // ImGui configs flags
         int imgui_config_flags = ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable;

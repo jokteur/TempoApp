@@ -48,6 +48,7 @@ int main() {
         .app_title = "Hello world",
         // .viewports_focus_all = true,
     };
+    // config.maximized = true;
 
     MainApp* app = new MainApp();
     Tempo::Run(app, config);

@@ -143,6 +143,8 @@ namespace Tempo {
         }
 
         // Create main window with graphics context
+        if (config.maximized)
+            glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
         GLFWwindow* main_window = glfwCreateWindow(
             config.default_window_width,
             config.default_window_height,
