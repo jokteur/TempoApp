@@ -306,6 +306,7 @@ namespace Tempo {
         ImGui_ImplOpenGL3_DestroyFontsTexture();
         ImGui_ImplGlfw_Shutdown();
         ImGui_ImplOpenGL3_Shutdown();
+        application->AfterLoop();
         ImGui::DestroyContext();
 
         // Shut down native file dialog lib

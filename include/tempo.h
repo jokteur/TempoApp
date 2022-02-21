@@ -79,6 +79,12 @@ namespace Tempo {
         virtual void InitializationBeforeLoop() {}
 
         /**
+         * @brief Implement this function if you want to finish gracefully
+         * some functions
+         */
+        virtual void AfterLoop() {}
+
+        /**
          * @brief This is where you want to put all the ImGui calls to draw the UI
          * This function is called each loop continuisly
          */

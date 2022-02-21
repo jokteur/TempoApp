@@ -15,7 +15,7 @@ This library takes care of the boilerplate for building desktop application with
 Suppose that you have cloned this repository into a folder called `TempoApp` and you are using CMake for building the application.
 
 **CMakeLists.txt**
-```C++
+```CMake
 # Set C++ 17 compiler flags
 set(CMAKE_CXX_STANDARD 17)
 
