@@ -222,7 +222,7 @@ namespace Tempo {
             if (application->m_glfw_poll_or_wait == Config::POLL)
                 glfwPollEvents();
             else
-                glfwWaitEvents();
+                glfwWaitEventsTimeout(1);
 
             event_queue.pollEvents();
 
