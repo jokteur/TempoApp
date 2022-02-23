@@ -17,6 +17,22 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 # Project options
 option(WITHOUT_CONSOLE "Does not show the console when the program is opened" OFF)
 
+# Test the operating system
+if(UNIX AND NOT APPLE)
+set(LINUX TRUE)
+endif()
+
+# Default cache
+# TODO: support Vulkan and Metal
+set(3D_BACKEND CACHE STRING OpenGL3)
+
+if (WIN32 OR LINUX)
+    set(AVAILABLE_3D_BACKENDS OpenGL3 Vulkan)
+elseif (APPLE)
+    set(AVAILABLE_3D_BACKENDS Metal OpenGL3 Vulkan)
+endif()
+
+message(${AVAILABLE_3D_BACKENDS})
 
 # External librairies
 add_subdirectory("external/glad")
@@ -50,7 +66,11 @@ if (WITHOUT_CONSOLE)
     endif()
 endif()
 
-target_link_libraries(Tempo PRIVATE glad glfw Imgui imm32 nfd stb_image)
+if (WIN32)
+    target_link_libraries(Tempo PRIVATE glad glfw Imgui imm32 nfd stb_image)
+else()
+    target_link_libraries(Tempo PRIVATE glad glfw Imgui nfd stb_image)
+endif()
 
 # Includes
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/include")
