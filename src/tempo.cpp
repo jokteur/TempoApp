@@ -19,6 +19,7 @@ namespace Tempo {
         bool app_initialized = false;
         std::string error_msg = "";
         const char* glsl_version;
+        float global_scaling = 0;
 
         // Monitors can be added, substracted, change their scaling
         // This is why we need to keep track if there is any change
@@ -109,6 +110,10 @@ namespace Tempo {
         ImGui::End();
     }
 
+    float GetScaling() {
+        return app_state.global_scaling;
+    }
+
     int Run(App* application, Config config) {
         /* ==== Initialize glfw  ==== */
         glfwSetErrorCallback(glfw_error_callback);
@@ -154,7 +159,7 @@ namespace Tempo {
         );
 
         glfwMakeContextCurrent(main_window);
-        glfwSwapInterval(1);  // Enable vsync
+        // glfwSwapInterval(1);  // Enable vsync
 
         // Initialize OpenGL loader
         gladLoadGL();
@@ -213,7 +218,7 @@ namespace Tempo {
 
         app_state.loop_running = true;
 
-        float previous_scale = 0;
+        app_state.global_scaling = 0;
         /* ==== Main loop  ==== */
         do {
             io = ImGui::GetIO();
@@ -254,13 +259,14 @@ namespace Tempo {
 
             float xscale, yscale;
             glfwGetWindowContentScale(main_window, &xscale, &yscale);
-            if (xscale != previous_scale) {
+            if (xscale != app_state.global_scaling) {
                 change_fonts = true;
-                previous_scale = xscale;
+                app_state.global_scaling = xscale;
             }
 
             if (change_fonts) {
                 io.Fonts->Clear();
+                std::cout << "change fonts" << std::endl;
                 // For each font, we need one FontTexture per scale
                 for (auto& font_pair : s_fonts.font_atlas) {
                     FontInfo& font = font_pair.second;

@@ -211,5 +211,12 @@ namespace Tempo {
      */
     void End();
 
+    /**
+     * @brief Returns the current DPI scaling of the main window
+     *
+     * @return float
+     */
+    float GetScaling();
+
     int Run(App* application, Config config);
 }
