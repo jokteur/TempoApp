@@ -335,14 +335,19 @@ namespace Tempo {
                     font.multi_scale_font[xscale] = imfont;
 
                     for (auto& icon_font : font.icons) {
+                        ImFontConfig cfg = icon_font.font_cfg;
+                        cfg.GlyphOffset = ImVec2(xscale * cfg.GlyphOffset.x, xscale * cfg.GlyphOffset.y);
+                        cfg.GlyphExtraSpacing = ImVec2(xscale * cfg.GlyphExtraSpacing.x, xscale * cfg.GlyphExtraSpacing.y);
+                        cfg.GlyphMaxAdvanceX = xscale * cfg.GlyphMaxAdvanceX;
+                        cfg.GlyphMinAdvanceX = xscale * cfg.GlyphMinAdvanceX;
                         if (icon_font.glyph_ranges.empty())
                             io.Fonts->AddFontFromFileTTF(
                                 icon_font.filename.c_str(),
-                                size, &icon_font.font_cfg);
+                                size, &cfg);
                         else
                             io.Fonts->AddFontFromFileTTF(
                                 icon_font.filename.c_str(),
-                                size, &icon_font.font_cfg, &icon_font.glyph_ranges[0]);
+                                size, &cfg, &icon_font.glyph_ranges[0]);
                     }
 
                     // For multi-DPI
