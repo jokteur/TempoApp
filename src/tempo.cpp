@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <iterator>
+#include <chrono>
 
 namespace Tempo {
 
@@ -27,6 +28,9 @@ namespace Tempo {
 
         // Relative to rendering
         bool redraw = false;
+        bool vsync = true;
+        std::chrono::steady_clock::time_point poll_until;
+        double wait_timeout;
     };
     AppState app_state;
 
@@ -110,6 +114,19 @@ namespace Tempo {
         ImGui::End();
     }
 
+    void SetWaitTimeout(double timeout) {
+        app_state.wait_timeout = timeout;
+    }
+
+    void PollUntil(long long milliseconds) {
+        app_state.poll_until = std::chrono::high_resolution_clock::now()
+            + std::chrono::milliseconds(milliseconds);
+    }
+
+    void SetVSync(int interval) {
+        glfwSwapInterval(interval);
+    }
+
     float GetScaling() {
         return app_state.global_scaling;
     }
@@ -159,7 +176,7 @@ namespace Tempo {
         );
 
         glfwMakeContextCurrent(main_window);
-        // glfwSwapInterval(1);  // Enable vsync
+        glfwSwapInterval(1);  // Enable vsync
 
         // Initialize OpenGL loader
         gladLoadGL();
@@ -217,6 +234,7 @@ namespace Tempo {
         application->InitializationBeforeLoop();
 
         app_state.loop_running = true;
+        app_state.wait_timeout = config.wait_timeout;
 
         app_state.global_scaling = 0;
         /* ==== Main loop  ==== */
@@ -226,8 +244,18 @@ namespace Tempo {
 
             if (application->m_glfw_poll_or_wait == Config::POLL)
                 glfwPollEvents();
-            else
-                glfwWaitEventsTimeout(1);
+            else {
+                auto now = std::chrono::high_resolution_clock::now();
+                if (std::chrono::duration_cast<std::chrono::milliseconds>(app_state.poll_until - now).count() > 0) {
+                    glfwPollEvents();
+                }
+                else {
+                    if (app_state.wait_timeout > 0.)
+                        glfwWaitEventsTimeout(app_state.wait_timeout);
+                    else
+                        glfwWaitEvents();
+                }
+            }
 
             event_queue.pollEvents();
 
@@ -266,7 +294,6 @@ namespace Tempo {
 
             if (change_fonts) {
                 io.Fonts->Clear();
-                std::cout << "change fonts" << std::endl;
                 // For each font, we need one FontTexture per scale
                 for (auto& font_pair : s_fonts.font_atlas) {
                     FontInfo& font = font_pair.second;

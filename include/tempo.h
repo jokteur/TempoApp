@@ -44,6 +44,7 @@ namespace Tempo {
         // GLFW poll or wait
         enum GLFW_events { POLL, WAIT };
         GLFW_events poll_or_wait = WAIT;
+        double wait_timeout = 0.;
 
         // Multi viewports focus behavior (see SetMultiViewportsFocusBehavior for explanation)
         bool viewports_focus_all = true;
@@ -210,6 +211,30 @@ namespace Tempo {
      *
      */
     void End();
+
+    /**
+     * @brief If the application is set to Wait Events, then this will set a timeout
+     * until the events are processed. If it is set to 0.0, then it is considered
+     * that the application will wait until the next event.
+     *
+     * @param timeout timeout in seconds
+     */
+    void SetWaitTimeout(double timeout);
+
+    /**
+     * @brief If the application is set to Wait Events, then this will temporarily set the
+     * application to Poll until the specified timer is expired
+     *
+     * @param seconds
+     */
+    void PollUntil(long long milliseconds);
+
+    /**
+     * @brief Activate or deactivate vsync during execution of the program
+     *
+     * @param vsync
+     */
+    void SetVSync(int interval);
 
     /**
      * @brief Returns the current DPI scaling of the main window
