@@ -132,7 +132,19 @@ namespace Tempo {
      * @param glyph_ranges ImGUI font ranges for glyphs
      * @return std::optional<FontID> returns a FontID if it succeeded
      */
-    std::optional<FontID> AddFontFromFileTTF(const std::string& filename, float size_pixels, const ImFontConfig* font_cfg = (const ImFontConfig*)0, const ImWchar* glyph_ranges = (const ImWchar*)0);
+    std::optional<FontID> AddFontFromFileTTF(const std::string& filename, float size_pixels, ImFontConfig font_cfg = ImFontConfig{}, std::vector<ImWchar> glyph_ranges = std::vector<ImWchar>());
+
+    /**
+     * @brief Adds a icon set to an existing font
+     *
+     * @param font fontID
+     * @param filename path to the TTF font
+     * @param font_cfg ImGUI font configuration flags
+     * @param glyph_ranges ImGUI font ranges for glyphs
+     * @return true if the font has been successfully added
+     * @return false if the loading failed
+     */
+    bool AddIconsToFont(FontID font_id, const std::string& filename, ImFontConfig font_cfg = ImFontConfig{}, std::vector<ImWchar> glyph_ranges = std::vector<ImWchar>());
 
     /**
      * @brief Adds a font (from memory) that know the DPI of the current viewport
