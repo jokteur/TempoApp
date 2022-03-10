@@ -255,5 +255,22 @@ namespace Tempo {
      */
     float GetScaling();
 
+    /**
+     * @brief Pushes a new animation, which can be identified by name
+     *
+     * @param name of animation
+     * @param duration in ms of the animation
+     */
+    void PushAnimation(const std::string& name, long long int duration);
+
+    /**
+     * @brief Get the animation progress
+     *
+     * @param name of animation
+     * @return float progress (between 0 and 1) of the animation
+     * if there is no animation in progress, it always returns 1.
+     */
+    float GetProgress(const std::string& name);
+
     int Run(App* application, Config config);
 }

@@ -3,9 +3,15 @@
 
 #include <iostream>
 #include <iterator>
+#include <unordered_map>
+#include <cmath>
+#include <vector>
 #include <chrono>
 
 namespace Tempo {
+    inline float min(float a, float b) {
+        return (a < b) ? a : b;
+    }
 
     static void glfw_error_callback(int error, const char* description) {
         std::cerr << "Glfw Error: \n"
@@ -13,6 +19,11 @@ namespace Tempo {
     }
 
     App::App() {}
+
+    struct Animation {
+        std::chrono::time_point<std::chrono::steady_clock> tp;
+        long long int duration;
+    };
 
     struct AppState {
         bool error = false;
@@ -31,7 +42,11 @@ namespace Tempo {
         bool vsync = true;
         std::chrono::steady_clock::time_point poll_until;
         double wait_timeout;
+
+        // Animation
+        std::unordered_map<std::string, Animation> animations;
     };
+
     AppState app_state;
 
     struct AppData {
@@ -157,6 +172,27 @@ namespace Tempo {
         return app_state.global_scaling;
     }
 
+    void PushAnimation(const std::string& name, long long int duration) {
+        if (app_state.animations.count(name))
+            return;
+        app_state.animations[name] = Animation{
+            std::chrono::high_resolution_clock::now(),
+            duration
+        };
+    }
+
+    float GetProgress(const std::string& name) {
+        if (!app_state.animations.count(name)) {
+            return 1.f;
+        }
+        auto now = std::chrono::high_resolution_clock::now();
+        return min(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                now - app_state.animations[name].tp).count()
+            / (float)app_state.animations[name].duration,
+            1.f);
+    }
+
     int Run(App* application, Config config) {
         /* ==== Initialize glfw  ==== */
         glfwSetErrorCallback(glfw_error_callback);
@@ -268,10 +304,11 @@ namespace Tempo {
             io = ImGui::GetIO();
             (void)io;
 
+            auto now = std::chrono::high_resolution_clock::now();
+
             if (application->m_glfw_poll_or_wait == Config::POLL)
                 glfwPollEvents();
             else {
-                auto now = std::chrono::high_resolution_clock::now();
                 if (std::chrono::duration_cast<std::chrono::milliseconds>(app_state.poll_until - now).count() > 0) {
                     glfwPollEvents();
                 }
@@ -284,6 +321,17 @@ namespace Tempo {
             }
 
             event_queue.pollEvents();
+
+            // Animation update
+            std::vector<std::string> to_remove;
+            for (auto& pair : app_state.animations) {
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - pair.second.tp).count();
+                if (duration > pair.second.duration)
+                    to_remove.push_back(pair.first);
+            }
+            for (auto& str : to_remove) {
+                app_state.animations.erase(str);
+            }
 
             application->BeforeFrameUpdate();
 
