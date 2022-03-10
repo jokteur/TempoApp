@@ -69,8 +69,8 @@ int main() {
 - **Q: Why this project?**
 - **A**: I maintain this repository for my own projects. Feel free to use or modify this project for your own.
 
-- **Q: What compilers are supported?**
-- **A**: For the moment gcc, Xcode and MSVC
+- **Q: What compilers and platforms are supported?**
+- **A**: For the moment Windows (gcc, MSVC), Mac OS (clang, Xcode)
 
 - **Q: What is the minimal supported C++ standard?**
 - **A**: C++17

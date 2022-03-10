@@ -11,21 +11,25 @@ namespace Tempo {
     bool GLFWwindowHandler::all_windows_unfocused = false;
     App* GLFWwindowHandler::application = nullptr;
 
-    void GLFWwindowHandler::focus_callback(GLFWwindow*, int focused) {
+    void GLFWwindowHandler::focus_callback(GLFWwindow*, int) {
         // If previously all windows were unfocused and
         // the user clicked on a window, we can put all windows from
         // the app to the front (if focus_all == true)
-        if (all_windows_unfocused && focus_all && focused == GLFW_TRUE) {
-            focusAll();
-            all_windows_unfocused = false;
-            return;
-        }
-        all_windows_unfocused = true;
-        for (auto& element : windows) {
-            if (glfwGetWindowAttrib(element.second, GLFW_FOCUSED) == GLFW_TRUE) {
-                all_windows_unfocused = false;
-            }
-        }
+
+        // For now, this is causing seg faults on MacOs Big Sur M1 chips
+        // Disabling
+
+        // if (all_windows_unfocused && focus_all && focused == GLFW_TRUE) {
+        //     focusAll();
+        //     all_windows_unfocused = false;
+        //     return;
+        // }
+        // all_windows_unfocused = true;
+        // for (auto& element : windows) {
+        //     if (glfwGetWindowAttrib(element.second, GLFW_FOCUSED) == GLFW_TRUE) {
+        //         all_windows_unfocused = false;
+        //     }
+        // }
     }
 
     void GLFWwindowHandler::focusAll() {

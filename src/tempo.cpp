@@ -204,9 +204,9 @@ namespace Tempo {
         // Decide GL+GLSL versions
 #if __APPLE__
     // GL 3.2 + GLSL 150
-        init_state.glsl_version = "#version 150";
+        app_state.glsl_version = "#version 150";
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 #else
@@ -218,8 +218,8 @@ namespace Tempo {
         //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-        if (config.DPI_aware)
-            glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+        //if (config.DPI_aware)
+        //    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 
         if (config.default_window_width == 0 || config.default_window_height == 0) {
             config.default_window_width = 800;
@@ -244,8 +244,8 @@ namespace Tempo {
         gladLoadGL();
 
         /* ==== Initialize ImGui  ==== */
-        glfwWindowHint(GLFW_SAMPLES, 4);
-        glEnable(GL_MULTISAMPLE);
+        //glfwWindowHint(GLFW_SAMPLES, 4);
+        //glEnable(GL_MULTISAMPLE);
 
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
@@ -397,6 +397,9 @@ namespace Tempo {
                                 icon_font.filename.c_str(),
                                 size, &cfg, &icon_font.glyph_ranges[0]);
                     }
+#ifdef __APPLE__
+                    io.FontGlobalScale = 1.f / xscale;
+#endif
 
                     // For multi-DPI
                     // for (auto& scale : app_state.monitors_scales) {

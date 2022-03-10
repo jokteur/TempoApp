@@ -6,7 +6,7 @@ private:
     Tempo::FontID m_font_regular;
     Tempo::FontID m_font_italic;
     Tempo::FontID m_font_bold;
-    bool m_open = true;
+    //bool m_open = true;
 public:
     virtual ~MainApp() {}
 
@@ -17,16 +17,7 @@ public:
     }
 
     void FrameUpdate() override {
-#ifdef IMGUI_HAS_VIEWPORT
-        ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(viewport->WorkSize);
-        ImGui::SetNextWindowViewport(viewport->ID);
-#else 
-        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-        ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-#endif
-        ImGui::Begin("My window", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
+        ImGui::Begin("My window");
 
         if (ImGui::Button("Click me")) {
             Tempo::EventQueue::getInstance().post(Tempo::Event_ptr(new Tempo::Event("Tempo/redraw")));
