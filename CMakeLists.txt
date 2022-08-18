@@ -19,16 +19,16 @@ option(WITHOUT_CONSOLE "Does not show the console when the program is opened" OF
 
 # Test the operating system
 if(UNIX AND NOT APPLE)
-set(LINUX TRUE)
+    set(LINUX TRUE)
 endif()
 
 # Default cache
 # TODO: support Vulkan and Metal
 set(3D_BACKEND CACHE STRING OpenGL3)
 
-if (WIN32 OR LINUX)
+if(WIN32 OR LINUX)
     set(AVAILABLE_3D_BACKENDS OpenGL3 Vulkan)
-elseif (APPLE)
+elseif(APPLE)
     set(AVAILABLE_3D_BACKENDS Metal OpenGL3 Vulkan)
 endif()
 
@@ -59,14 +59,14 @@ set(src_files
 
 add_library(Tempo STATIC ${src_files})
 
-if (WITHOUT_CONSOLE)
-    if (MSVC)
-    set_target_properties(Tempo PROPERTIES 
-        LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
+if(WITHOUT_CONSOLE)
+    if(MSVC)
+        set_target_properties(Tempo PROPERTIES
+            LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
     endif()
 endif()
 
-if (WIN32)
+if(WIN32)
     target_link_libraries(Tempo PRIVATE glad glfw Imgui imm32 nfd stb_image)
 else()
     target_link_libraries(Tempo PRIVATE glad glfw Imgui nfd stb_image)
@@ -78,6 +78,7 @@ target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glad/inc
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glfw/include")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/imgui")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/imgui/misc/cpp")
+
 # For GLFWwindowHandler
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/glfw_handler")
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/external/imgui_bindings")
@@ -86,9 +87,9 @@ target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/external/stb_ima
 
 # Set compiler options
 if(MSVC)
-	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 else()
-	target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
 endif()
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${source_list})
@@ -99,6 +100,6 @@ get_directory_property(is_subproject PARENT_DIRECTORY)
 
 # Only build the test suite and utilities if this is not a subproject
 if(NOT is_subproject)
-	add_subdirectory("examples/minimal")
+    add_subdirectory("examples/minimal")
     add_subdirectory("examples/feature")
 endif()

@@ -160,7 +160,7 @@ namespace Tempo {
     }
 
     void PollUntil(long long milliseconds) {
-        app_state.poll_until = std::chrono::high_resolution_clock::now()
+        app_state.poll_until = std::chrono::steady_clock::now()
             + std::chrono::milliseconds(milliseconds);
     }
 
@@ -176,7 +176,7 @@ namespace Tempo {
         if (app_state.animations.count(name))
             return;
         app_state.animations[name] = Animation{
-            std::chrono::high_resolution_clock::now(),
+            std::chrono::steady_clock::now(),
             duration
         };
     }
@@ -185,7 +185,7 @@ namespace Tempo {
         if (!app_state.animations.count(name)) {
             return 1.f;
         }
-        auto now = std::chrono::high_resolution_clock::now();
+        auto now = std::chrono::steady_clock::now();
         return min(
             std::chrono::duration_cast<std::chrono::milliseconds>(
                 now - app_state.animations[name].tp).count()
@@ -304,7 +304,7 @@ namespace Tempo {
             io = ImGui::GetIO();
             (void)io;
 
-            auto now = std::chrono::high_resolution_clock::now();
+            auto now = std::chrono::steady_clock::now();
 
             if (application->m_glfw_poll_or_wait == Config::POLL)
                 glfwPollEvents();
