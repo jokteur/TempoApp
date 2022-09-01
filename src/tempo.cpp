@@ -20,33 +20,6 @@ namespace Tempo {
 
     App::App() {}
 
-    struct Animation {
-        std::chrono::time_point<std::chrono::steady_clock> tp;
-        long long int duration;
-    };
-
-    struct AppState {
-        bool error = false;
-        bool loop_running = false;
-        bool app_initialized = false;
-        std::string error_msg = "";
-        const char* glsl_version;
-        float global_scaling = 0;
-
-        // Monitors can be added, substracted, change their scaling
-        // This is why we need to keep track if there is any change
-        ImVector<float> monitors_scales;
-
-        // Relative to rendering
-        bool redraw = false;
-        bool vsync = true;
-        std::chrono::steady_clock::time_point poll_until;
-        double wait_timeout;
-
-        // Animation
-        std::unordered_map<std::string, Animation> animations;
-    };
-
     AppState app_state;
 
     struct AppData {
@@ -65,33 +38,50 @@ namespace Tempo {
         // Font parameters for ImGui
         std::string filename;
         float size_pixels;
+        bool no_dpi = false;
         ImFontConfig font_cfg;
-        std::vector<ImWchar> glyph_ranges;
+        ImVector<ImWchar> glyph_ranges;
         std::vector<FontInfo> icons; // Can add multiple icons to a font
     };
 
     struct Fonts {
         int push_pop_counter = 0;
+        bool reconstruct_fonts = true;
+        std::set<int> ghost_pushes;
         int font_counter = 0;
         std::map<uint32_t, FontInfo> font_atlas;
     };
 
     Fonts s_fonts;
 
-    std::optional<FontID> AddFontFromFileTTF(const std::string& filename, float size_pixels, ImFontConfig font_cfg, std::vector<ImWchar> glyph_ranges) {
+    std::optional<FontID> AddFontFromFileTTF(const std::string& filename, float size_pixels, ImFontConfig font_cfg, ImVector<ImWchar> glyph_ranges, bool no_dpi) {
         assert(app_state.app_initialized && "AddFontFromFileTTF cannot be called when the application has not been initialized yet.");
+
+        // Assert also for when called in between loop
+
         FontInfo font;
         font.filename = filename;
         font.size_pixels = size_pixels;
         font.font_cfg = font_cfg;
         font.glyph_ranges = glyph_ranges;
+        font.no_dpi = no_dpi;
 
-        s_fonts.font_counter++;
 
         // TODO: check if file exists and can be loaded
         // auto& io = ImGui::GetIO();
         // if (glyph_ranges)
-        // io.Fonts->AddFontFromFileTTF(filename.c_str(), size_pixels, &font.font_cfg, &glyph_ranges[0]);
+
+        // ImFont* imfont = nullptr;
+        // if (font.glyph_ranges.empty())
+        //     imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), size_pixels, &font.font_cfg);
+        // else
+        //     imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), size_pixels, &font.font_cfg, &font.glyph_ranges[0]);
+        // if (imfont == nullptr) {
+        //     return std::optional<FontID>();
+        // }
+        // font.multi_scale_font[1.f] = s_fonts.font_atlas.begin()->second.multi_scale_font.begin()->second;
+        s_fonts.font_counter++;
+        s_fonts.reconstruct_fonts = true;
 
         FontID font_id = (FontID)s_fonts.font_counter;
         s_fonts.font_atlas.insert(std::make_pair(font_id, font));
@@ -99,7 +89,7 @@ namespace Tempo {
         return std::optional<FontID>(font_id);
     }
 
-    bool AddIconsToFont(FontID font_id, const std::string& filename, ImFontConfig font_cfg, std::vector<ImWchar> glyph_ranges) {
+    bool AddIconsToFont(FontID font_id, const std::string& filename, ImFontConfig font_cfg, ImVector<ImWchar> glyph_ranges) {
         assert(app_state.app_initialized && "AddIconsToFont cannot be called when the application has not been initialized yet.");
 
         font_cfg.MergeMode = true;
@@ -115,6 +105,7 @@ namespace Tempo {
         FontInfo& font_info = s_fonts.font_atlas[font_id];
         // auto& io = ImGui::GetIO();
 
+        s_fonts.reconstruct_fonts = true;
         font_info.icons.push_back(icon_font);
 
         // PushFont(font_id);
@@ -131,20 +122,29 @@ namespace Tempo {
 
     void PushFont(FontID font_id) {
         assert(app_state.loop_running && "PushFont cannot be called outside of the main loop of the application");
-        if (s_fonts.font_atlas.find(font_id) == s_fonts.font_atlas.end()) {
-            ImGui::PushFont(nullptr);
+
+        s_fonts.push_pop_counter++;
+        FontInfo font_info = s_fonts.font_atlas[font_id];
+
+        if (s_fonts.font_atlas.find(font_id) == s_fonts.font_atlas.end()
+            || font_info.multi_scale_font.empty()) {
+            s_fonts.ghost_pushes.insert(s_fonts.push_pop_counter);
             return;
         }
-        s_fonts.push_pop_counter++;
+
         // FIXME : multiple DPI support
-        FontInfo font_info = s_fonts.font_atlas[font_id];
         ImFont* font = (*(font_info.multi_scale_font.begin())).second;
         ImGui::PushFont(font);
     }
 
     void PopFont() {
         assert(app_state.loop_running && "PushFont cannot be called outside of the main loop of the application");
-        ImGui::PopFont();
+        if (s_fonts.ghost_pushes.find(s_fonts.push_pop_counter) == s_fonts.ghost_pushes.end()) {
+            ImGui::PopFont();
+        }
+        else {
+            s_fonts.ghost_pushes.erase(s_fonts.push_pop_counter);
+        }
         s_fonts.push_pop_counter--;
     }
 
@@ -333,10 +333,9 @@ namespace Tempo {
                 app_state.animations.erase(str);
             }
 
+            app_state.before_frame = true;
+
             application->BeforeFrameUpdate();
-
-            bool change_fonts = false;
-
 
             // FIXME: multi-DPI system
             // right now, we are use the main window content scale
@@ -359,26 +358,36 @@ namespace Tempo {
             //     app_state.monitors_scales[n] = x_scale;
             // }
 
-            float xscale, yscale;
-            glfwGetWindowContentScale(main_window, &xscale, &yscale);
-            if (xscale != app_state.global_scaling) {
-                change_fonts = true;
-                app_state.global_scaling = xscale;
+            float global_xscale, yscale;
+            glfwGetWindowContentScale(main_window, &global_xscale, &yscale);
+            if (global_xscale != app_state.global_scaling) {
+                s_fonts.reconstruct_fonts = true;
+                app_state.global_scaling = global_xscale;
             }
 
-            if (change_fonts) {
+            if (s_fonts.reconstruct_fonts) {
                 io.Fonts->Clear();
                 // For each font, we need one FontTexture per scale
                 for (auto& font_pair : s_fonts.font_atlas) {
                     FontInfo& font = font_pair.second;
                     font.multi_scale_font.clear();
 
+                    float xscale = global_xscale;
+                    if (font.no_dpi) {
+                        xscale = 1.f;
+                    }
+
                     float size = xscale * font.size_pixels;
                     ImFont* imfont;
+
                     if (font.glyph_ranges.empty())
                         imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), size, &font.font_cfg);
-                    else
+                    else {
+                        for (auto c : font.glyph_ranges) {
+                            std::cout << c << std::endl;
+                        }
                         imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), size, &font.font_cfg, &font.glyph_ranges[0]);
+                    }
 
                     font.multi_scale_font[xscale] = imfont;
 
@@ -412,8 +421,11 @@ namespace Tempo {
                 ImGui_ImplOpenGL3_CreateFontsTexture();
             }
 
+            s_fonts.reconstruct_fonts = false;
+
             // ImGuiPlatformIO& platorm_io = ImGui::GetPlatformIO();
 
+            app_state.before_frame = false;
 
             int width, height;
             glfwGetFramebufferSize(main_window, &width, &height);

@@ -46,6 +46,7 @@ include_directories(src/glfw_handler)
 
 # Files for the project
 set(src_files
+    "include/im_config.h"
     "external/imgui_bindings/imgui_impl_opengl3.cpp"
     "include/tempo.h"
     "external/imgui_bindings/imgui_impl_glfw.cpp"
