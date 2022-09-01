@@ -5,6 +5,7 @@
 #endif
 #include <GLFW/glfw3.h>
 
+#include "im_config.h"
 #include <imgui.h>
 
 #include <string>
@@ -55,6 +56,35 @@ namespace Tempo {
         // JobScheduler settings
         uint8_t worker_pool_size = 1;
     };
+
+    struct Animation {
+        std::chrono::time_point<std::chrono::steady_clock> tp;
+        long long int duration;
+    };
+
+    struct AppState {
+        bool error = false;
+        bool loop_running = false;
+        bool before_frame = false;
+        bool app_initialized = false;
+        std::string error_msg = "";
+        const char* glsl_version;
+        float global_scaling = 0;
+
+        // Monitors can be added, substracted, change their scaling
+        // This is why we need to keep track if there is any change
+        ImVector<float> monitors_scales;
+
+        // Relative to rendering
+        bool redraw = false;
+        bool vsync = true;
+        std::chrono::steady_clock::time_point poll_until;
+        double wait_timeout;
+
+        // Animation
+        std::unordered_map<std::string, Animation> animations;
+    };
+    extern AppState app_state;
 
     /**
      * @brief Class for defining the application.
@@ -119,7 +149,7 @@ namespace Tempo {
      * Using these fonts is similar to the ImGUI ImGui::PushFont and ImGui::PopFont,
      * instead, one must use the equivalent Tempo::PushFont and Tempo::PopFont
      *
-     * By default, the last call to this function will be the default font file
+     * By default, the first call to this function will be the default font file
      * in the whole app.
      *
      * Must be called after the application has been initialized
@@ -130,9 +160,11 @@ namespace Tempo {
      * @param size_pixels relative pixel size of the font
      * @param font_cfg ImGUI font configuration flags
      * @param glyph_ranges ImGUI font ranges for glyphs
+     * @param no_dpi if true, is not influenced by dpi changes
      * @return std::optional<FontID> returns a FontID if it succeeded
      */
-    std::optional<FontID> AddFontFromFileTTF(const std::string& filename, float size_pixels, ImFontConfig font_cfg = ImFontConfig{}, std::vector<ImWchar> glyph_ranges = std::vector<ImWchar>());
+    std::optional<FontID> AddFontFromFileTTF(const std::string& filename, float size_pixels, ImFontConfig font_cfg = ImFontConfig{}, ImVector<ImWchar> glyph_ranges = ImVector<ImWchar>(), bool no_dpi = false);
+
 
     /**
      * @brief Adds a icon set to an existing font
@@ -144,7 +176,7 @@ namespace Tempo {
      * @return true if the font has been successfully added
      * @return false if the loading failed
      */
-    bool AddIconsToFont(FontID font_id, const std::string& filename, ImFontConfig font_cfg = ImFontConfig{}, std::vector<ImWchar> glyph_ranges = std::vector<ImWchar>());
+    bool AddIconsToFont(FontID font_id, const std::string& filename, ImFontConfig font_cfg = ImFontConfig{}, ImVector<ImWchar> glyph_ranges = ImVector<ImWchar>());
 
     /**
      * @brief Adds a font (from memory) that know the DPI of the current viewport
