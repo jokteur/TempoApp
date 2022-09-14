@@ -87,6 +87,16 @@ namespace Tempo {
     extern AppState app_state;
 
     /**
+     * @brief ImFont* passed to the user could be dereferenced at any moment
+     * This structure, along with a shared ptr can be used to determine if
+     * ImFont* is still valid
+     */
+    struct SafeImFont {
+        ImFont* im_font;
+    };
+    using SafeImFontPtr = std::shared_ptr<SafeImFont>;
+
+    /**
      * @brief Class for defining the application.
      *
      * One should inherit from this class to define the application
@@ -226,7 +236,7 @@ namespace Tempo {
      *
      * @param font_id
      */
-    void PushFont(FontID font_id);
+    void PushFont(FontID font_id, float scale = 1.f);
 
     /**
      * @brief Pops the last DPI aware pushed to the front of the atlas
@@ -238,6 +248,13 @@ namespace Tempo {
      *
      */
     void PopFont();
+
+    /**
+     * @brief Returns the corresponding im font ptr from Tempo's font id
+     *
+     * @param font_id
+     */
+    SafeImFontPtr GetImFont(FontID font_id);
 
     /**
      * @brief Replacement for ImGui::Begin to have multi-dpi awareness

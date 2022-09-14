@@ -33,7 +33,7 @@ namespace Tempo {
     }
 
     struct FontInfo {
-        std::map<float, ImFont*> multi_scale_font;
+        std::map<float, SafeImFontPtr> multi_scale_font;
         float scaling = 0;
         // Font parameters for ImGui
         std::string filename;
@@ -120,7 +120,7 @@ namespace Tempo {
         }
     }
 
-    void PushFont(FontID font_id) {
+    void PushFont(FontID font_id, float scale) {
         assert(app_state.loop_running && "PushFont cannot be called outside of the main loop of the application");
 
         s_fonts.push_pop_counter++;
@@ -133,7 +133,8 @@ namespace Tempo {
         }
 
         // FIXME : multiple DPI support
-        ImFont* font = (*(font_info.multi_scale_font.begin())).second;
+        ImFont* font = (*(font_info.multi_scale_font.begin())).second->im_font;
+        font->Scale = scale;
         ImGui::PushFont(font);
     }
 
@@ -146,6 +147,12 @@ namespace Tempo {
             s_fonts.ghost_pushes.erase(s_fonts.push_pop_counter);
         }
         s_fonts.push_pop_counter--;
+    }
+
+    SafeImFontPtr GetImFont(FontID font_id) {
+        FontInfo font_info = s_fonts.font_atlas[font_id];
+        // TODO: multi scale atlas
+        return font_info.multi_scale_font.begin()->second;
     }
 
     void Begin(const char* name, bool* p_open, ImGuiWindowFlags flags) {
@@ -370,6 +377,10 @@ namespace Tempo {
                 // For each font, we need one FontTexture per scale
                 for (auto& font_pair : s_fonts.font_atlas) {
                     FontInfo& font = font_pair.second;
+                    // Render all previous fonts null
+                    for (auto pair : font.multi_scale_font) {
+                        pair.second->im_font = nullptr;
+                    }
                     font.multi_scale_font.clear();
 
                     float xscale = global_xscale;
@@ -389,7 +400,7 @@ namespace Tempo {
                         imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), size, &font.font_cfg, &font.glyph_ranges[0]);
                     }
 
-                    font.multi_scale_font[xscale] = imfont;
+                    font.multi_scale_font[xscale] = std::make_shared<SafeImFont>(SafeImFont{ imfont });
 
                     for (auto& icon_font : font.icons) {
                         ImFontConfig cfg = icon_font.font_cfg;
