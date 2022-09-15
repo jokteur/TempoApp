@@ -116,6 +116,10 @@ namespace Tempo {
 
     void RemoveFont(FontID font_id) {
         if (s_fonts.font_atlas.find(font_id) != s_fonts.font_atlas.end()) {
+            // Invalidate all references to ImFont*
+            for (auto pair : s_fonts.font_atlas[font_id].multi_scale_font) {
+                pair.second->im_font = nullptr;
+            }
             s_fonts.font_atlas.erase(font_id);
         }
     }
@@ -152,6 +156,8 @@ namespace Tempo {
     SafeImFontPtr GetImFont(FontID font_id) {
         FontInfo font_info = s_fonts.font_atlas[font_id];
         // TODO: multi scale atlas
+        if (font_info.multi_scale_font.empty())
+            return std::make_shared<SafeImFont>(SafeImFont{ nullptr });
         return font_info.multi_scale_font.begin()->second;
     }
 
