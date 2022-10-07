@@ -154,6 +154,9 @@ namespace Tempo {
     }
 
     SafeImFontPtr GetImFont(FontID font_id) {
+        if (font_id == -1) {
+            return std::make_shared<SafeImFont>(SafeImFont{ nullptr });
+        }
         FontInfo font_info = s_fonts.font_atlas[font_id];
         // TODO: multi scale atlas
         if (font_info.multi_scale_font.empty())
