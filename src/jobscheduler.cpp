@@ -14,12 +14,12 @@ namespace Tempo {
      * Exceptions related to the JobScheduler class
      */
 
-    class JobSchedulerException : public std::exception {
+    class JobSchedulerException: public std::exception {
     private:
         const char* what_;
 
     public:
-        explicit JobSchedulerException(const char* what) : what_(what) {}
+        explicit JobSchedulerException(const char* what): what_(what) {}
         virtual const char* what() const noexcept {
             return what_;
         }
@@ -30,8 +30,8 @@ namespace Tempo {
      */
 
     void JobScheduler::setWorkerPoolSize(int size) {
-        if (size < 1) {
-            throw JobSchedulerException("Cannot set thread pool size to less than 1");
+        if (size < 0) {
+            throw JobSchedulerException("Cannot set thread pool size to less than 0");
         }
 
         // Add thread(s)
@@ -158,7 +158,8 @@ namespace Tempo {
         return true;
     }
 
-    void JobScheduler::clean() {
+    void JobScheduler::quit() {
+        setWorkerPoolSize(0);
         for (auto& worker : workers_) {
             if (worker.state == WORKER_STATE_KILLED) {
                 worker.thread->join();

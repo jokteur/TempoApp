@@ -93,11 +93,11 @@ namespace Tempo {
         std::shared_ptr<JobResult> result;
     };
 
-    class JobEvent : public Event {
+    class JobEvent: public Event {
     private:
         std::shared_ptr<Job> job_;
     public:
-        JobEvent(std::string& name, std::shared_ptr<Job> job) : Event(name), job_(std::move(job)) {}
+        JobEvent(std::string& name, std::shared_ptr<Job> job): Event(name), job_(std::move(job)) {}
         std::shared_ptr<Job> getJob() { return job_; }
     };
 #define JOBEVENT_PTRCAST(job) (reinterpret_cast<JobEvent*>((job)))
@@ -220,7 +220,7 @@ namespace Tempo {
 
         static jobResultFct no_op_fct;
 
-        JobScheduler() : event_queue_(EventQueue::getInstance()) {
+        JobScheduler(): event_queue_(EventQueue::getInstance()) {
             setWorkerPoolSize(4);
         }
 
@@ -321,11 +321,11 @@ namespace Tempo {
          * This function should be called regularly to clean the dandling pointers of the killed threads
          * TODO : avoid garbage collecting
          */
-        void clean();
+        void quit();
 
         ~JobScheduler() {
             abortAll();
-            clean();
+            quit();
         }
     };
 

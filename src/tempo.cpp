@@ -455,7 +455,7 @@ namespace Tempo {
                 glfwPostEmptyEvent();
             }
 
-            JobScheduler::getInstance().finalizeJobs();
+            scheduler.finalizeJobs();
 
             if (glfwWindowShouldClose(main_window)) {
                 scheduler.abortAll();
@@ -466,7 +466,7 @@ namespace Tempo {
         app_state.loop_running = false;
         app_state.app_initialized = false;
 
-        event_queue.unsubscribe(&tempo_listener);
+        // event_queue.unsubscribe(&tempo_listener);
         // Shut down ImGui and ImPlot
         ImGui_ImplOpenGL3_DestroyFontsTexture();
         ImGui_ImplGlfw_Shutdown();
@@ -476,6 +476,7 @@ namespace Tempo {
 
         // Shut down native file dialog lib
         // NFD::Quit();
+        scheduler.quit();
 
         // Shut down glfw
         glfwDestroyWindow(main_window);
