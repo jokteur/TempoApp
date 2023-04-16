@@ -180,6 +180,10 @@ namespace Tempo {
             + std::chrono::milliseconds(milliseconds);
     }
 
+    void SkipFrame() {
+        app_state.skip_frame = true;
+    }
+
     void SetVSync(int interval) {
         glfwSwapInterval(interval);
     }

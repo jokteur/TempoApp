@@ -80,6 +80,7 @@ namespace Tempo {
         bool vsync = true;
         std::chrono::steady_clock::time_point poll_until;
         double wait_timeout;
+        bool skip_frame = false;
 
         // Animation
         std::unordered_map<std::string, Animation> animations;
@@ -289,6 +290,11 @@ namespace Tempo {
      * @param seconds
      */
     void PollUntil(long long milliseconds);
+
+    /**
+     * @brief skips the rendering of the current frame
+    */
+    void SkipFrame();
 
     /**
      * @brief Activate or deactivate vsync during execution of the program

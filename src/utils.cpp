@@ -72,6 +72,8 @@ namespace Tempo {
             glfwMakeContextCurrent(backup_current_context);
         }
 
-        glfwSwapBuffers(window);
+        if (!app_state.skip_frame)
+            glfwSwapBuffers(window);
+        app_state.skip_frame = false;
     }
 }
