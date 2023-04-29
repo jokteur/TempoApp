@@ -308,7 +308,7 @@ namespace Tempo {
      *
      * @return float
      */
-    float GetScaling();
+    const float GetScaling();
 
     /**
      * @brief Pushes a new animation, which can be identified by name

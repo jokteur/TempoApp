@@ -224,7 +224,6 @@ namespace Tempo {
             setWorkerPoolSize(4);
         }
 
-
     public:
         /**
          * Copy constructors stay empty, because of the Singleton
