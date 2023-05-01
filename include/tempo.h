@@ -69,7 +69,7 @@ namespace Tempo {
         bool app_initialized = false;
         std::string error_msg = "";
         const char* glsl_version;
-        float global_scaling = 0;
+        float global_scaling = 1.0f;
 
         // Monitors can be added, substracted, change their scaling
         // This is why we need to keep track if there is any change
@@ -308,7 +308,7 @@ namespace Tempo {
      *
      * @return float
      */
-    const float GetScaling();
+    float GetScaling();
 
     /**
      * @brief Pushes a new animation, which can be identified by name

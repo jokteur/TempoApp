@@ -188,7 +188,7 @@ namespace Tempo {
         glfwSwapInterval(interval);
     }
 
-    const float GetScaling() {
+    float GetScaling() {
         return app_state.global_scaling;
     }
 
