@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 
 namespace Tempo {
+    class App;
+
     GLFWmonitor* getCurrentMonitor(GLFWwindow* window);
 
     // To avoid including tempo.h in this include, I am using a void pointer

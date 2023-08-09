@@ -56,6 +56,7 @@ set(src_files
     "src/events.cpp"
     "src/log.cpp"
     "src/jobscheduler.cpp"
+    "src/keyboard_shortcuts.cpp"
 )
 
 add_library(Tempo STATIC ${src_files})

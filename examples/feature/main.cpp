@@ -14,6 +14,16 @@ public:
         m_font_regular = Tempo::AddFontFromFileTTF("fonts/Roboto/Roboto-Regular.ttf", 16).value();
         m_font_italic = Tempo::AddFontFromFileTTF("fonts/Roboto/Roboto-Italic.ttf", 16).value();
         m_font_bold = Tempo::AddFontFromFileTTF("fonts/Roboto/Roboto-Bold.ttf", 16).value();
+
+        Tempo::Shortcut shortcut;
+        shortcut.keys = { CMD_KEY, GLFW_KEY_Q };
+        shortcut.name = "Quit";
+        shortcut.description = "Quit the application";
+        shortcut.callback = [this]() {
+            std::cout << "Quit" << std::endl;
+            Tempo::EventQueue::getInstance().post(Tempo::Event_ptr(new Tempo::Event("Tempo/quit")));
+            };
+        Tempo::KeyboardShortCut::addShortcut(shortcut);
     }
 
     void FrameUpdate() override {
@@ -28,7 +38,6 @@ public:
         Tempo::PopFont();
         ImGui::End();
         ImGui::ShowDemoWindow();
-
     }
     void BeforeFrameUpdate() override {}
 };

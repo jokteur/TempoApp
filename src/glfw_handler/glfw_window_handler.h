@@ -10,6 +10,8 @@ namespace Tempo {
      * This class for examples allows to bring all windows to the front
      * if the user clicks on only one of the window
      */
+    class App;
+
     class GLFWwindowHandler {
     private:
         static std::multimap<int, GLFWwindow*> windows;

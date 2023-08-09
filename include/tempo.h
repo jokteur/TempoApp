@@ -17,6 +17,7 @@
 
 #include "../src/jobscheduler.h"
 #include "../src/events.h"
+#include "../src/keyboard_shortcuts.h"
 
 //compatibility with older versions of Visual Studio
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
@@ -81,6 +82,7 @@ namespace Tempo {
         std::chrono::steady_clock::time_point poll_until;
         double wait_timeout;
         bool skip_frame = false;
+        bool run_app = true;
 
         // Animation
         std::unordered_map<std::string, Animation> animations;

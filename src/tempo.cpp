@@ -301,8 +301,11 @@ namespace Tempo {
                 if (type == "redraw") {
                     app_state.redraw = true;
                 }
+                if (type == "quit") {
+                    app_state.run_app = false;
+                }
             }
-        };
+            };
         event_queue.subscribe(&tempo_listener);
 
         /* ==== Other configs  ==== */
@@ -341,6 +344,7 @@ namespace Tempo {
             }
 
             event_queue.pollEvents();
+            KeyboardShortCut::dispatchShortcuts();
 
             // Animation update
             std::vector<std::string> to_remove;
@@ -461,11 +465,16 @@ namespace Tempo {
 
             scheduler.finalizeJobs();
 
-            if (glfwWindowShouldClose(main_window)) {
+            if (glfwWindowShouldClose(main_window) && !scheduler.isBusy()) {
                 scheduler.abortAll();
+                KeyboardShortCut::emptyKeyEventsQueue();
+                app_state.run_app = false;
             }
 
-        } while (!glfwWindowShouldClose(main_window) || scheduler.isBusy());
+        } while (app_state.run_app);
+
+        scheduler.abortAll();
+        KeyboardShortCut::emptyKeyEventsQueue();
 
         app_state.loop_running = false;
         app_state.app_initialized = false;

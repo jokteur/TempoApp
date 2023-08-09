@@ -4,6 +4,7 @@
 
 #include "../events.h"
 #include "../utils.h"
+#include "../keyboard_shortcuts.h"
 
 namespace Tempo {
     std::multimap<int, GLFWwindow*> GLFWwindowHandler::windows;
@@ -46,6 +47,8 @@ namespace Tempo {
         // glfwSetKeyCallback(window, &KeyboardShortCut::key_callback);
         if (resize_callback)
             glfwSetFramebufferSizeCallback(window, &GLFWwindowHandler::framebuffer_size_callback);
+
+        glfwSetKeyCallback(window, &KeyboardShortCut::key_callback);
         //glfwSetCharCallback(window, &KeyboardShortCut::character_callback);
     }
 
