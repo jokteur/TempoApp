@@ -83,9 +83,9 @@ target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/im
 
 # For GLFWwindowHandler
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/glfw_handler")
-target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/external/imgui_bindings")
-target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/external/nativefiledialog-extended/src/include")
-target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/external/stb_image")
+target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui_bindings")
+target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/nativefiledialog-extended/src/include")
+target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/stb_image")
 
 # Set compiler options
 if(MSVC)

@@ -14,6 +14,7 @@
 #include <vector>
 #include <cstdint>
 #include <iostream>
+#include <nfd.h>
 
 #include "../src/jobscheduler.h"
 #include "../src/events.h"
