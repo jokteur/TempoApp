@@ -11,11 +11,12 @@ set(
 )
 add_executable(${PROJECT_NAME} ${source_list})
 target_link_libraries(${PROJECT_NAME} PRIVATE Tempo)
+include_directories(../..external/imgui/imgui)
 
 # Copy the data (such as fonts) in build directory
 add_custom_command(TARGET feature PRE_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/data/ $<TARGET_FILE_DIR:feature>) 
+	${CMAKE_SOURCE_DIR}/data/ $<TARGET_FILE_DIR:feature>)
 
 # Set compiler options
 if(MSVC)

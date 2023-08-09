@@ -1,5 +1,7 @@
 #include <iostream>
+
 #include <tempo.h>
+#include "imgui_stdlib.h"
 
 class MainApp : public Tempo::App {
 private:
@@ -7,6 +9,8 @@ private:
     Tempo::FontID m_font_italic;
     Tempo::FontID m_font_bold;
     //bool m_open = true;
+
+    std::string m_input;
 public:
     virtual ~MainApp() {}
 
@@ -36,6 +40,7 @@ public:
         Tempo::PushFont(m_font_bold);
         ImGui::Text("This is bold");
         Tempo::PopFont();
+        ImGui::InputTextMultiline("Input text", &m_input);
         ImGui::End();
         ImGui::ShowDemoWindow();
     }

@@ -5,6 +5,7 @@
 //#include <clocale>
 
 namespace Tempo {
+    void no_op_callback(GLFWwindow*, int, int, int, int) {}
 
     std::deque<KeyEvent> KeyboardShortCut::keyboard_events_;
     std::vector<Shortcut> KeyboardShortCut::global_shortcuts_;
@@ -12,6 +13,7 @@ namespace Tempo {
     EventQueue& KeyboardShortCut::eventQueue_ = EventQueue::getInstance();
     bool KeyboardShortCut::ignore_global_shortcuts_ = false;
     std::mutex KeyboardShortCut::mutex;
+    GLFWkeyfun KeyboardShortCut::prev_key_callback_ = no_op_callback;
 
     /*
      * Character utilities
@@ -124,22 +126,27 @@ namespace Tempo {
         return is_valid;
     }
 
-    void KeyboardShortCut::key_callback(GLFWwindow*, int key, int, int action, int) {
-        std::lock_guard<std::mutex> guard(mutex);
-        key = translate_keycode(key);
-        if (action == GLFW_PRESS) {
-            //last_keystroke_ = key;
-            KeyEvent keyevent = { key, GLFW_PRESS, std::chrono::system_clock::now() };
-            keyboard_events_.push_front(keyevent);
-
-            if (keyboard_events_.size() > KEYBOARD_SHORTCUT_QUEUE_LENGTH)
-                keyboard_events_.pop_back();
+    void KeyboardShortCut::key_callback(GLFWwindow* window, int key, int shortcode, int action, int mods) {
+        {
+            prev_key_callback_(window, key, shortcode, action, mods);
         }
-        else if (action == GLFW_RELEASE) {
-            for (auto& event : keyboard_events_) {
-                if (key == event.key) {
-                    event.state = GLFW_RELEASE;
-                    break;
+        {
+            std::lock_guard<std::mutex> guard(mutex);
+            key = translate_keycode(key);
+            if (action == GLFW_PRESS) {
+                //last_keystroke_ = key;
+                KeyEvent keyevent = { key, GLFW_PRESS, std::chrono::system_clock::now() };
+                keyboard_events_.push_front(keyevent);
+
+                if (keyboard_events_.size() > KEYBOARD_SHORTCUT_QUEUE_LENGTH)
+                    keyboard_events_.pop_back();
+            }
+            else if (action == GLFW_RELEASE) {
+                for (auto& event : keyboard_events_) {
+                    if (key == event.key) {
+                        event.state = GLFW_RELEASE;
+                        break;
+                    }
                 }
             }
         }

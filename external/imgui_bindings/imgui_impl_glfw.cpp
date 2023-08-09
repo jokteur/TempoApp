@@ -879,6 +879,7 @@ static void ImGui_ImplGlfw_CreateWindow(ImGuiViewport* viewport)
         glfwMakeContextCurrent(vd->Window);
         glfwSwapInterval(0);
     }
+
     Tempo::GLFWwindowHandler::addWindow(vd->Window);
 }
 
@@ -960,7 +961,7 @@ static void ImGui_ImplGlfw_ShowWindow(ImGuiViewport* viewport)
     {
         ::ShowWindow(hwnd, SW_SHOWNA);
         return;
-    }
+}
 #endif
 #endif
 

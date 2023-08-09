@@ -76,6 +76,7 @@ namespace Tempo {
 
         static std::set<int> kp_keys_list_;
         //static std::set<char> authorized_chars_;
+        static GLFWkeyfun prev_key_callback_;
 
         static bool is_shortcut_valid(Shortcut& shortcut);
         static std::multiset<keyboard_event>::iterator find_key(Shortcut& shortcut, const int key);
@@ -121,6 +122,8 @@ namespace Tempo {
          * the right key stroke
          */
         static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+        static void set_prev_key_callback(GLFWkeyfun callback) { prev_key_callback_ = callback; }
 
         /**
          * Character callback to be defined for any newly created window

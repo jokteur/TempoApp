@@ -43,13 +43,12 @@ namespace Tempo {
 
     void GLFWwindowHandler::addWindow(GLFWwindow* window, int z_index, bool resize_callback) {
         windows.insert(std::pair<int, GLFWwindow*>(z_index, window));
-        glfwSetWindowFocusCallback(window, &GLFWwindowHandler::focus_callback);
-        // glfwSetKeyCallback(window, &KeyboardShortCut::key_callback);
+        // glfwSetWindowFocusCallback(window, &GLFWwindowHandler::focus_callback);
+        auto fun = glfwSetKeyCallback(window, &KeyboardShortCut::key_callback);
+        KeyboardShortCut::set_prev_key_callback(fun);
+        //glfwSetCharCallback(window, &KeyboardShortCut::character_callback);
         if (resize_callback)
             glfwSetFramebufferSizeCallback(window, &GLFWwindowHandler::framebuffer_size_callback);
-
-        glfwSetKeyCallback(window, &KeyboardShortCut::key_callback);
-        //glfwSetCharCallback(window, &KeyboardShortCut::character_callback);
     }
 
     void GLFWwindowHandler::removeWindow(GLFWwindow* window) {
