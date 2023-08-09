@@ -138,4 +138,6 @@ namespace Tempo {
          */
         static void dispatchShortcuts();
     };
+
+    std::string getKeyName(int key);
 }

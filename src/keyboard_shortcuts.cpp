@@ -323,4 +323,21 @@ namespace Tempo {
     void KeyboardShortCut::flushTempShortcuts() {
         local_shortcuts_.clear();
     }
+
+    std::string getKeyName(int key) {
+        switch (key) {
+        case KEY_ALT:
+            return "Alt";
+        case KEY_CTRL:
+            return "Ctrl";
+        case KEY_SHIFT:
+            return "Shift";
+        case KEY_SUPER:
+            return "Super";
+        case KEY_ENTER:
+            return "Enter";
+        default:
+            return glfwGetKeyName(key, GLFW_KEY_UNKNOWN);
+        }
+    }
 }
