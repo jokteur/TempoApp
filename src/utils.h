@@ -6,6 +6,9 @@
 namespace Tempo {
     class App;
 
+    std::string strToPathFriendly(const std::string& str);
+    std::string nameToAppConfigFile(const std::string& name);
+
     GLFWmonitor* getCurrentMonitor(GLFWwindow* window);
 
     // To avoid including tempo.h in this include, I am using a void pointer

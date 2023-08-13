@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <functional>
 
 #include "tempo.h"
 
@@ -16,7 +17,7 @@ namespace Tempo {
     private:
         static std::multimap<int, GLFWwindow*> windows;
         static bool all_windows_unfocused;
-
+        static std::string config_name;
     public:
         /**
          * If focus_all is set to true, then
@@ -31,6 +32,19 @@ namespace Tempo {
          * @param height
          */
         static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+        /**
+         * Callback for GLFW when maximizing or unmaximizing the window
+        */
+        static void window_maximize_callback(GLFWwindow* window, int maximized);
+
+        /**
+         * Callback for GLFW when moving the window
+         * @param window
+         * @param x
+         * @param y
+         */
+        static void window_pos_callback(GLFWwindow* window, int x, int y);
 
         /**
          * Callback for GLFW when any window is focused or defocused
@@ -55,11 +69,17 @@ namespace Tempo {
         static void setZIndex(GLFWwindow* window, int z_index = 0);
 
         /**
+         * Sets the name of the application (for saving the window size and position)
+        */
+        static void setAppName(const std::string& name);
+
+        /**
          * Makes the class aware of a GLFW window
          * @param window glfw window pointer
          * @param z_index z index (low to back, high to front)
+         * @param is_main_window if true, the window will be considered as the main window
          */
-        static void addWindow(GLFWwindow* window, int z_index = 0, bool resize_callback = false);
+        static void addWindow(GLFWwindow* window, int z_index = 0, bool is_main_window = false);
 
         /**
          * Removes a GLFW window from the class

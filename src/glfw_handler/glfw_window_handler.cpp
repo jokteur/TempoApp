@@ -5,12 +5,14 @@
 #include "../events.h"
 #include "../utils.h"
 #include "../keyboard_shortcuts.h"
+#include "../config.h"
 
 namespace Tempo {
     std::multimap<int, GLFWwindow*> GLFWwindowHandler::windows;
     bool GLFWwindowHandler::focus_all = false;
     bool GLFWwindowHandler::all_windows_unfocused = false;
     App* GLFWwindowHandler::application = nullptr;
+    std::string GLFWwindowHandler::config_name = "default";
 
     void GLFWwindowHandler::focus_callback(GLFWwindow*, int) {
         // If previously all windows were unfocused and
@@ -41,14 +43,21 @@ namespace Tempo {
         }
     }
 
-    void GLFWwindowHandler::addWindow(GLFWwindow* window, int z_index, bool resize_callback) {
+    void GLFWwindowHandler::setAppName(const std::string& name) {
+        config_name = nameToAppConfigFile(name);
+    }
+
+    void GLFWwindowHandler::addWindow(GLFWwindow* window, int z_index, bool main_window) {
         windows.insert(std::pair<int, GLFWwindow*>(z_index, window));
         // glfwSetWindowFocusCallback(window, &GLFWwindowHandler::focus_callback);
         auto fun = glfwSetKeyCallback(window, &KeyboardShortCut::key_callback);
         KeyboardShortCut::set_prev_key_callback(fun);
         //glfwSetCharCallback(window, &KeyboardShortCut::character_callback);
-        if (resize_callback)
+        if (main_window) {
             glfwSetFramebufferSizeCallback(window, &GLFWwindowHandler::framebuffer_size_callback);
+            glfwSetWindowMaximizeCallback(window, &GLFWwindowHandler::window_maximize_callback);
+            glfwSetWindowPosCallback(window, &GLFWwindowHandler::window_pos_callback);
+        }
     }
 
     void GLFWwindowHandler::removeWindow(GLFWwindow* window) {
@@ -68,5 +77,12 @@ namespace Tempo {
     void GLFWwindowHandler::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
         // TODO Multi-threaded app: https://stackoverflow.com/a/56614042/8523520
         renderApplication(window, width, height, application);
+        saveWindowSize(config_name, width, height);
+    }
+    void GLFWwindowHandler::window_maximize_callback(GLFWwindow*, int maximized) {
+        saveWindowMaximized(config_name, maximized == GLFW_TRUE);
+    }
+    void GLFWwindowHandler::window_pos_callback(GLFWwindow*, int x, int y) {
+        saveWindowPosition(config_name, x, y);
     }
 }

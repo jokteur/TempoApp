@@ -41,6 +41,9 @@ namespace Tempo {
         bool no_console = false;
         bool maximized = false;
 
+        // Will restore window state (position, size, maximized) from previous session
+        bool save_state = true;
+
         // ImGui configs flags
         int imgui_config_flags = ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable;
 

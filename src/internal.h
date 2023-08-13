@@ -5,3 +5,4 @@
 #include "glfw_handler/glfw_window_handler.h"
 #include "events.h"
 #include "jobscheduler.h"
+#include "config.h"

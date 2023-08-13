@@ -7,6 +7,7 @@
 #include <cmath>
 #include <vector>
 #include <chrono>
+#include <toml.hpp>
 
 namespace Tempo {
     inline float min(float a, float b) {
@@ -238,13 +239,28 @@ namespace Tempo {
         //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-        //if (config.DPI_aware)
-        //    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+        GLFWwindowHandler::setAppName(config.app_name);
+
+        // Window config file
+        std::string config_path = nameToAppConfigFile(config.app_name);
+        auto window_config = loadWindowConfig(config_path);
 
         if (config.default_window_width == 0 || config.default_window_height == 0) {
             config.default_window_width = 800;
             config.default_window_height = 600;
         }
+
+        if (window_config.width != 0 && window_config.height != 0) {
+            config.default_window_width = window_config.width;
+            config.default_window_height = window_config.height;
+        }
+        else {
+            if (config.DPI_aware)
+                glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+        }
+        // For now, we don't set the position, because it can lead to weird behavior
+        // (e.g. the window is not visible on the screen, because it is on a monitor that is not connected)
+        config.maximized = window_config.maximized;
 
         // Create main window with graphics context
         if (config.maximized)

@@ -40,6 +40,7 @@ add_subdirectory("external/glfw")
 add_subdirectory("external/imgui")
 add_subdirectory("external/nativefiledialog-extended")
 add_subdirectory("external/stb_image")
+add_subdirectory("external/toml11")
 
 # For GLFWwindowHandler
 include_directories(src/glfw_handler)
@@ -54,6 +55,7 @@ set(src_files
     "src/glfw_handler/glfw_window_handler.cpp"
     "src/tempo.cpp"
     "src/events.cpp"
+    "src/config.cpp"
     "src/log.cpp"
     "src/jobscheduler.cpp"
     "src/keyboard_shortcuts.cpp"
@@ -80,6 +82,7 @@ target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glad/inc
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glfw/include")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/imgui")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/imgui/misc/cpp")
+target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/toml11")
 
 # For GLFWwindowHandler
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/glfw_handler")

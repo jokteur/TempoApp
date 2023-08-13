@@ -12,6 +12,24 @@ static int max(int x, int y) {
 }
 
 namespace Tempo {
+    bool is_alpha_numeric(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+            (c >= '0' && c <= '9');
+    }
+    std::string strToPathFriendly(const std::string& str) {
+        std::string result = "";
+        for (char c : str) {
+            if (is_alpha_numeric(c))
+                result += c;
+            else
+                result += '_';
+        }
+        return result;
+    }
+    std::string nameToAppConfigFile(const std::string& name) {
+        return "cfg_" + strToPathFriendly(name) + ".toml";
+    }
+
     // Adapted from https://stackoverflow.com/a/31526753
     GLFWmonitor* getCurrentMonitor(GLFWwindow* window) {
         int nmonitors, i;
