@@ -251,8 +251,8 @@ namespace Tempo {
         }
 
         if (window_config.width != 0 && window_config.height != 0) {
-            config.default_window_width = window_config.width;
-            config.default_window_height = window_config.height;
+            config.default_window_width = (uint16_t)window_config.width;
+            config.default_window_height = (uint16_t)window_config.height;
         }
         else {
             if (config.DPI_aware)

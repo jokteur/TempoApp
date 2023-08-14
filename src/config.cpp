@@ -62,15 +62,15 @@ namespace Tempo {
         if (data.contains("window")) {
             auto window = data["window"];
             if (window.contains("width"))
-                out.width = window["width"].as_integer();
+                out.width = (int)window["width"].as_integer();
             if (window.contains("height"))
-                out.height = window["height"].as_integer();
+                out.height = (int)window["height"].as_integer();
             if (window.contains("x"))
-                out.x = window["x"].as_integer();
+                out.x = (int)window["x"].as_integer();
             if (window.contains("y"))
-                out.y = window["y"].as_integer();
+                out.y = (int)window["y"].as_integer();
             if (window.contains("maximized"))
-                out.maximized = window["maximized"].as_boolean();
+                out.maximized = (bool)window["maximized"].as_boolean();
         }
         return out;
     }
