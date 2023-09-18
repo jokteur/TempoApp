@@ -16,6 +16,14 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 # Project options
 option(WITHOUT_CONSOLE "Does not show the console when the program is opened" OFF)
+option(ADVANCED_TEXT "Enable advanced text (needs FreeType support)" OFF)
+
+if (ADVANCED_TEXT)
+    message("Advanced text support enabled")
+    find_package(Freetype REQUIRED)
+    add_compile_definitions(ADVANCED_TEXT)
+    add_compile_definitions(IMGUI_ENABLE_FREETYPE)
+endif()
 
 # Test the operating system
 if(UNIX AND NOT APPLE)
@@ -76,6 +84,12 @@ else()
     target_link_libraries(Tempo PRIVATE glad glfw Imgui nfd stb_image)
 endif()
 
+if (ADVANCED_TEXT)
+    target_link_libraries(Tempo PRIVATE ${FREETYPE_LIBRARIES})
+    target_include_directories(Tempo PUBLIC ${FREETYPE_INCLUDE_DIRS})
+    target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/imgui/misc/freetype")
+endif()
+
 # Includes
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glad/include")
@@ -83,6 +97,7 @@ target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/glfw/inc
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/imgui")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/imgui/misc/cpp")
 target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/toml11")
+
 
 # For GLFWwindowHandler
 target_include_directories(Tempo PRIVATE "${PROJECT_SOURCE_DIR}/glfw_handler")

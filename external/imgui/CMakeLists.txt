@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 project (Imgui LANGUAGES CXX)
 
 # Set the source files to a list
+
 set(
     source_list
 	"imgui/imconfig.h"
@@ -26,5 +27,11 @@ set(
 )	
 
 # Create executable file as project name
-add_library(Imgui ${source_list})
+if (ADVANCED_TEXT)
+	add_library(Imgui ${source_list} "imgui/misc/freetype/imgui_freetype.cpp" "imgui/misc/freetype/imgui_freetype.h")
+    target_link_libraries(Imgui PRIVATE ${FREETYPE_LIBRARIES})
+    target_include_directories(Imgui PUBLIC ${FREETYPE_INCLUDE_DIRS})
+else()
+	add_library(Imgui ${source_list})
+endif()
 target_include_directories(Imgui PUBLIC "${PROJECT_SOURCE_DIR}/imgui")
