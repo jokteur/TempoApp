@@ -19,6 +19,8 @@ option(WITHOUT_CONSOLE "Does not show the console when the program is opened" OF
 option(ADVANCED_TEXT "Enable advanced text (needs FreeType support)" OFF)
 option(ADVANCED_TEXT_SVG "Enable advanced text with SVG (needs FreeType 2.12 and LunaSVG support)" OFF)
 
+add_subdirectory("external/lunasvg")
+
 if (ADVANCED_TEXT)
     message("Advanced text support enabled")
     if (ADVANCED_TEXT_SVG)
@@ -28,7 +30,6 @@ if (ADVANCED_TEXT)
     else()
         find_package(Freetype 2.11 REQUIRED)
     endif()
-    # add_subdirectory("external/imgui/lunasvg")
     add_compile_definitions(ADVANCED_TEXT)
     add_compile_definitions(IMGUI_ENABLE_FREETYPE)
     add_compile_definitions(IMGUI_USE_WCHAR32)
