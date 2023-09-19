@@ -17,12 +17,21 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 # Project options
 option(WITHOUT_CONSOLE "Does not show the console when the program is opened" OFF)
 option(ADVANCED_TEXT "Enable advanced text (needs FreeType support)" OFF)
+option(ADVANCED_TEXT_SVG "Enable advanced text with SVG (needs FreeType 2.12 and LunaSVG support)" OFF)
 
 if (ADVANCED_TEXT)
     message("Advanced text support enabled")
-    find_package(Freetype REQUIRED)
+    if (ADVANCED_TEXT_SVG)
+        find_package(FreeType 2.12 REQUIRED)
+        message("svg text support enabled")
+        add_compile_definitions(IMGUI_ENABLE_FREETYPE_LUNASVG)
+    else()
+        find_package(Freetype 2.11 REQUIRED)
+    endif()
+    # add_subdirectory("external/imgui/lunasvg")
     add_compile_definitions(ADVANCED_TEXT)
     add_compile_definitions(IMGUI_ENABLE_FREETYPE)
+    add_compile_definitions(IMGUI_USE_WCHAR32)
 endif()
 
 # Test the operating system
@@ -66,6 +75,7 @@ set(src_files
     "src/config.cpp"
     "src/log.cpp"
     "src/jobscheduler.cpp"
+    "src/text/fonts.cpp"
     "src/keyboard_shortcuts.cpp"
 )
 
@@ -86,6 +96,7 @@ endif()
 
 if (ADVANCED_TEXT)
     target_link_libraries(Tempo PRIVATE ${FREETYPE_LIBRARIES})
+    target_link_libraries(Tempo PRIVATE lunasvg)
     target_include_directories(Tempo PUBLIC ${FREETYPE_INCLUDE_DIRS})
     target_include_directories(Tempo PUBLIC "${PROJECT_SOURCE_DIR}/external/imgui/imgui/misc/freetype")
 endif()

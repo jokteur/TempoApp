@@ -6,3 +6,4 @@
 #include "events.h"
 #include "jobscheduler.h"
 #include "config.h"
+#include "text/fonts_private.h"

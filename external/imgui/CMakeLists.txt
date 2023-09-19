@@ -29,8 +29,9 @@ set(
 # Create executable file as project name
 if (ADVANCED_TEXT)
 	add_library(Imgui ${source_list} "imgui/misc/freetype/imgui_freetype.cpp" "imgui/misc/freetype/imgui_freetype.h")
-    target_link_libraries(Imgui PRIVATE ${FREETYPE_LIBRARIES})
+    target_link_libraries(Imgui PRIVATE ${FREETYPE_LIBRARIES} lunasvg)
     target_include_directories(Imgui PUBLIC ${FREETYPE_INCLUDE_DIRS})
+    target_include_directories(Imgui PUBLIC ${LUNASVG_INCDIR})
 else()
 	add_library(Imgui ${source_list})
 endif()
