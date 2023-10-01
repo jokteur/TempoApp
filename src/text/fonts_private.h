@@ -47,6 +47,14 @@ namespace Tempo {
             static FontManager instance;
             return instance;
         }
+
+        void manage(float global_xscale);
+        std::optional<FontID> AddFontFromFileTTF(const std::string& filename, float size_pixels, ImFontConfig font_cfg = ImFontConfig{}, ImVector<ImWchar> glyph_ranges = ImVector<ImWchar>(), bool no_dpi = false);
+        bool AddIconsToFont(FontID font_id, const std::string& filename, ImFontConfig font_cfg = ImFontConfig{}, ImVector<ImWchar> glyph_ranges = ImVector<ImWchar>());
+        void RemoveFont(FontID font_id);
+        void PushFont(FontID font_id, float scale = 1.f);
+        void PopFont();
+        SafeImFontPtr GetImFont(FontID font_id);
     private:
         FontManager() = default;
     };

@@ -207,9 +207,6 @@ namespace Tempo {
         app_state.global_scaling = 0;
         /* ==== Main loop  ==== */
         do {
-            io = ImGui::GetIO();
-            (void)io;
-
             auto now = std::chrono::steady_clock::now();
 
             if (application->m_glfw_poll_or_wait == Config::POLL)
@@ -272,64 +269,7 @@ namespace Tempo {
                 app_state.global_scaling = global_xscale;
             }
 
-            if (FONTM.reconstruct_fonts) {
-                io.Fonts->Clear();
-                // For each font, we need one FontTexture per scale
-                for (auto& font_pair : FONTM.font_atlas) {
-                    FontInfo& font = font_pair.second;
-                    // Render all previous fonts null
-                    for (auto pair : font.multi_scale_font) {
-                        pair.second->im_font = nullptr;
-                    }
-                    font.multi_scale_font.clear();
-
-                    float xscale = global_xscale;
-                    if (font.no_dpi) {
-                        xscale = 1.f;
-                    }
-
-                    float size = xscale * font.size_pixels;
-                    ImFont* imfont;
-
-                    if (font.glyph_ranges.empty())
-                        imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), size, &font.font_cfg);
-                    else {
-                        imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), size, &font.font_cfg, &font.glyph_ranges[0]);
-                    }
-
-                    font.multi_scale_font[xscale] = std::make_shared<SafeImFont>(SafeImFont{ imfont });
-
-                    for (auto& icon_font : font.icons) {
-                        ImFontConfig cfg = icon_font.font_cfg;
-                        cfg.GlyphOffset = ImVec2(xscale * cfg.GlyphOffset.x, xscale * cfg.GlyphOffset.y);
-                        cfg.GlyphExtraSpacing = ImVec2(xscale * cfg.GlyphExtraSpacing.x, xscale * cfg.GlyphExtraSpacing.y);
-                        cfg.GlyphMaxAdvanceX = xscale * cfg.GlyphMaxAdvanceX;
-                        cfg.GlyphMinAdvanceX = xscale * cfg.GlyphMinAdvanceX;
-                        if (icon_font.glyph_ranges.empty())
-                            io.Fonts->AddFontFromFileTTF(
-                                icon_font.filename.c_str(),
-                                size, &cfg);
-                        else
-                            io.Fonts->AddFontFromFileTTF(
-                                icon_font.filename.c_str(),
-                                size, &cfg, &icon_font.glyph_ranges[0]);
-                    }
-#ifdef __APPLE__
-                    io.FontGlobalScale = 1.f / xscale;
-#endif
-
-                    // For multi-DPI
-                    // for (auto& scale : app_state.monitors_scales) {
-                    //     ImFont* imfont = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), scale * font.size_pixels, font.font_cfg, font.glyph_ranges);
-                    //     font.multi_scale_font[scale] = imfont;
-                    // }
-                }
-                io.Fonts->Build();
-                ImGui_ImplOpenGL3_DestroyFontsTexture();
-                ImGui_ImplOpenGL3_CreateFontsTexture();
-            }
-
-            FONTM.reconstruct_fonts = false;
+            FONTM.manage(global_xscale);
 
             // ImGuiPlatformIO& platorm_io = ImGui::GetPlatformIO();
 

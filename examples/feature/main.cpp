@@ -30,8 +30,7 @@ public:
         ranges.push_back(0x1); ranges.push_back(0x1FFFF); ranges.push_back(0);
         cfg.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
 #endif
-        m_font_emoji = Tempo::AddFontFromFileTTF("fonts/NotoColorEmoji-Regular.ttf", 16.0f, cfg, ranges).value();
-
+        m_font_emoji = Tempo::AddFontFromFileTTF("fonts/noto-untouchedsvg.ttf", 32.0f, cfg, ranges).value();
         Tempo::Shortcut shortcut;
         shortcut.keys = { CMD_KEY, GLFW_KEY_Q };
         shortcut.name = "Quit";
@@ -54,7 +53,7 @@ public:
         ImGui::Text("This is bold");
         Tempo::PopFont();
         Tempo::PushFont(m_font_emoji);
-        ImGui::Text("😳😅😂👽");
+        ImGui::Text("🤚🏻😳😅😂👽");
         Tempo::PopFont();
         ImGui::InputTextMultiline("Input text", &m_input);
         ImGui::End();
