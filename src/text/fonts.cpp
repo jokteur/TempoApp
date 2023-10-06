@@ -1,4 +1,4 @@
-#include "fonts.h"
+#include "fonts_public.h"
 #include "fonts_private.h"
 
 namespace Tempo {

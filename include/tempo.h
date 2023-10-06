@@ -19,7 +19,7 @@
 #include "../src/jobscheduler.h"
 #include "../src/events.h"
 #include "../src/keyboard_shortcuts.h"
-#include "../src/text/fonts.h"
+#include "../src/text/fonts_public.h"
 
 //compatibility with older versions of Visual Studio
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)

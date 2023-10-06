@@ -10,6 +10,29 @@
 #include <optional>
 
 namespace Tempo {
+    enum Family { F_REGULAR, F_CONDENSED, F_MONOSPACE };
+    enum Weight { W_THIN, W_LIGHT, W_REGULAR, W_MEDIUM, W_BOLD };
+    enum Style { S_NORMAL, S_ITALIC };
+    enum Range {
+        R_LATIN,
+        R_GREEK,
+        R_KOREAN,
+        R_CHINESE_FULL,
+        R_CHINESE_SIMPLIFIED,
+        R_JAPANESE,
+        R_CYRILLIC,
+        R_THAI,
+        R_VIETNAMESE,
+        R_ARABIC,
+    };
+    enum Error {
+        E_OK,
+        E_PATH_NOT_FOUND,
+        E_FILE_NOT_VALID,
+        E_FONT_NOT_FOUND,
+        W_FALLBACK_TO_DEFAULT_FONT
+    };
+
     /**
      * @brief ImFont* passed to the user could be dereferenced at any moment
      * This structure, along with a shared ptr can be used to determine if

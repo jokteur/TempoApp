@@ -1,5 +1,5 @@
 #pragma once
-#include "fonts.h"
+#include "fonts_public.h"
 #include <map>
 #include <vector>
 #include <set>
